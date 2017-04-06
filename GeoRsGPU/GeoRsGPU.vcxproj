@@ -68,21 +68,21 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\lib\GDALDev\include;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\lib\GDALDev\include;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\lib\GDALDev\include;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\lib\GDALDev\include;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)..\lib\GDALDev\include;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\lib\GDALDev\include;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)..\lib\GDALDev\include;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\lib\GDALDev\include;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -100,7 +100,7 @@
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
-      <Include>$(ProjectDir)..\lib\GDALDev\include;%(Include)</Include>
+      <Include>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;%(Include)</Include>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <AdditionalOptions>-gencode=arch=compute_30,code=\"sm_30,compute_30\" %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
@@ -125,7 +125,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <Include>$(ProjectDir)..\lib\GDALDev\include;%(Include)</Include>
+      <Include>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;%(Include)</Include>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <AdditionalOptions>-gencode=arch=compute_30,code=\"sm_30,compute_30\" %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
@@ -153,7 +153,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
 copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
-      <Include>$(ProjectDir)..\lib\GDALDev\include;%(Include)</Include>
+      <Include>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;%(Include)</Include>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <AdditionalOptions>-gencode=arch=compute_30,code=\"sm_30,compute_30\" %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
@@ -182,7 +182,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <Include>$(ProjectDir)..\lib\GDALDev\include;%(Include)</Include>
+      <Include>$(ProjectDir)..\lib\GDALDev\include;$(ProjectDir)..\lib\args;%(Include)</Include>
       <CodeGeneration>compute_30,sm_30</CodeGeneration>
       <AdditionalOptions>-gencode=arch=compute_30,code=\"sm_30,compute_30\" %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
@@ -191,7 +191,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
+    <ClCompile Include="GeoRsGPU.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
