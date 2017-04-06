@@ -1,8 +1,16 @@
+#include <chrono>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <iomanip>
+#include <string>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
 #include <stdio.h>
+
+#include "gdal_priv.h"
 
 cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size);
 
@@ -12,8 +20,115 @@ __global__ void addKernel(int *c, const int *a, const int *b)
     c[i] = a[i] + b[i];
 }
 
+void timeIt(std::string operationName, std::function<void()> func)
+{
+	auto startTime = std::chrono::high_resolution_clock::now();
+	func();
+	auto endTime = std::chrono::high_resolution_clock::now();
+
+
+	int totalMilliseconds = std::chrono::
+		duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+	std::cout << "[" << operationName << "]: " << totalMilliseconds << "ms" << std::endl;
+}
+
+void executeCuda(std::function<cudaError_t()> cudaFunc)
+{
+	cudaError_t code = cudaFunc();
+	if (code != cudaSuccess)
+	{
+		fprintf(stderr, "CUDA ERROR: %d %s\n", code, cudaGetErrorString(code));
+		exit(code);
+	}
+}
+
+void checkCuda()
+{
+	cudaError_t code = cudaGetLastError();
+	if (code != cudaSuccess)
+	{
+		fprintf(stderr, "CUDA ERROR: %d %s\n", code, cudaGetErrorString(code));
+		exit(code);
+	}
+}
+void exitProgram(const char* const message)
+{
+	fprintf(stderr, "\n");
+	fprintf(stderr, message);
+	fprintf(stderr, "\n");
+	exit(1);
+}
+
+void readInputFromFile(
+	// Input:
+	const char* const filePath,
+	// Output:
+	float*& inputData, double geoTransform[], int& nLineSize, int& nNumberOfLines,
+	GDALDriver*& poDriver)
+{
+	GDALAllRegister();
+
+	GDALDataset* poDataset = (GDALDataset*)GDALOpen(filePath, GA_ReadOnly);
+	if (poDataset == NULL)
+	{
+		exitProgram("ERROR: Failed to open GDAL dataset.");
+	}
+
+	poDriver = GetGDALDriverManager()->GetDriverByName(poDataset->GetDriverName());
+	if (poDriver == NULL)
+	{
+		exitProgram("ERROR: Failed to identify the GDAL driver.");
+	}
+
+	// In the particular, but common, case of a "north up" image without any rotation or shearing, 
+	// the georeferencing transform takes the following form :
+	// 0 -> top left x
+	// 1 -> w-e pixel resolution
+	// 2 -> 0
+	// 3 -> top left y
+	// 4 -> 0
+	// 5 -> n-s pixel resolution (negative value)
+	poDataset->GetGeoTransform(geoTransform);
+
+	// We assume that the file has only one raster band
+	// (we always use the first one).
+	GDALRasterBand* poRasterBand = poDataset->GetRasterBand(1);
+	nLineSize = poRasterBand->GetXSize();
+	nNumberOfLines = poRasterBand->GetYSize();
+
+	// Allocate pinned host memory (faster CUDA transfer performance)
+	executeCuda([&]() { return cudaMallocHost((void**)&inputData, nLineSize * nNumberOfLines * sizeof(float)); });
+
+	// Read data from file
+	poRasterBand->RasterIO(GDALRWFlag::GF_Read, 0, 0, nLineSize, nNumberOfLines, inputData, nLineSize, nNumberOfLines, GDALDataType::GDT_Float32, 0, 0);
+
+	GDALClose(poDataset);
+}
+
+
 int main()
 {
+	/*** Load input data from DEM file => inputData, geoTransform, nLineSize, nNumberOfLines, fCellSizeX, fCellSizeY, poDriver ***/
+	double geoTransform[6];
+	int nLineSize;
+	int nNumberOfLines;
+	float* inputData;
+	GDALDriver *poDriver;
+
+	timeIt("Load Data", [&]() {
+		readInputFromFile(
+			// input:
+			"d:\\GeoGPUTeste\\Data\\dem9112.tif", // input file path
+					 // output:
+			inputData, geoTransform, nLineSize, nNumberOfLines, poDriver);
+	});
+
+	float fCellSizeX = (float)geoTransform[1];
+	float fCellSizeY = -(float)geoTransform[5];
+
+	std::cout << "Cell size: " << fCellSizeX << ", " << fCellSizeY << "; Raster size: " << nNumberOfLines << " rows x " << nLineSize << " columns" << std::endl;
+
     const int arraySize = 5;
     const int a[arraySize] = { 1, 2, 3, 4, 5 };
     const int b[arraySize] = { 10, 20, 30, 40, 50 };
