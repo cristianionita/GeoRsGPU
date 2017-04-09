@@ -36,6 +36,20 @@ void showOutBlock(float* out, BlockRect rect)
 	std::cout << std::endl;
 }
 
+#include <chrono>
+void timeIt(std::string operationName, std::function<void()> func)
+{
+	auto startTime = std::chrono::high_resolution_clock::now();
+	func();
+	auto endTime = std::chrono::high_resolution_clock::now();
+
+
+	int totalMilliseconds = std::chrono::
+		duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+	std::cout << "[" << operationName << "]: " << totalMilliseconds << "ms" << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
 	/*CommandLineParser parser(argc, argv);
@@ -60,14 +74,14 @@ int main(int argc, char *argv[])
 		std::cout << "BlockWidth not found - using default value" << std::endl;
 	}*/
 
-	string inputFilePath = "d:\\GeoGPUTeste\\Data\\dem9112.tif";
-	//string inputFilePath = "d:\\Dropbox\\ASE\\GIS\\EUD_CP-DEMS_4500025000-AA.tif";
+	//string inputFilePath = "d:\\GeoGPUTeste\\Data\\dem9112.tif";
+	string inputFilePath = "d:\\Dropbox\\ASE\\GIS\\EUD_CP-DEMS_4500025000-AA.tif";
 	string outputFilePath = "d:\\temp\\georsgpu_result.tif";
 	RasterCommand command = RasterCommand::Slope;
 
 	int borderSize = 1;
-	int blockHeight = 800, blockWidth = 700;
-	//int blockHeight = 5, blockWidth = 8;
+	int blockHeight = 2000, blockWidth = 40000;
+
 	try
 	{
 		InputFileManager in(inputFilePath);		
@@ -79,18 +93,14 @@ int main(int argc, char *argv[])
 			blockWidth + borderSize * 2);
 
 		for (int i = 0; i < bm.getNumberOfBlocks(); i++)
-		//for (int i = 0; i < 3; i++)
 		{
-			BlockRect rect = bm.getBlock(i, borderSize, false);
-			BlockRect rectClipped = bm.getBlock(i, borderSize, true);
+			BlockRect rectIn = bm.getBlock(i, borderSize, true);
 			BlockRect rectOut = bm.getBlock(i);
-			//cout << rectClipped << " -> " << bm.getBlock(i) << endl;
-			in.readBlock(rect, rectClipped, gpu.getInBlock());
-			gpu.processBlock(rectClipped, rectOut);
-			
-			//showOutBlock(gpu.getOutBlock(), rectOut);
 
-			out.writeBlock(rectOut, gpu.getOutBlock());
+			cout << rectOut << endl;
+			timeIt("R", [&]() {in.readBlock(rectIn, gpu.getInBlock()); });
+			timeIt("C", [&]() {gpu.processBlock(rectIn, rectOut); });
+			timeIt("W", [&]() {out.writeBlock(rectOut, gpu.getOutBlock()); });
 		}
 	}
 	catch (runtime_error e)

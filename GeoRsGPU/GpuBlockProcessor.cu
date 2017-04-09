@@ -66,17 +66,16 @@ __global__ void slopeZevenbergen(
 		float h = ELEM(input, rowIndex + 1, colIndex);
 		float i = ELEM(input, rowIndex + 1, colIndex + 1);
 
-		//float dZdY = (b - h) / (2 * cellSizeY);
-		//float dZdX = (f - d) / (2 * cellSizeX);
-		//ELEM(output, lineIndex, colIndex) = (sqrt(pow(dZdX, 2) + pow(dZdY, 2))) * radDegree;
-		outputElem = 1;
+		float dZdY = (b - h) / (2 * cellSizeY);
+		float dZdX = (f - d) / (2 * cellSizeX);
+		outputElem = (sqrt(pow(dZdX, 2) + pow(dZdY, 2))) * radDegree;
 	}
 	else if (
 		colIndex == 0 || rowIndex == 0 || 
 		colIndex == width - 1 || rowIndex == height - 1)
 	{
 		// We are on the edge - we don't have all surrounding values
-		outputElem = 2;
+		outputElem = 0;
 	}
 }
 

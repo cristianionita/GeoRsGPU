@@ -40,7 +40,7 @@ namespace GeoRsGpu {
 		inline int getWidth() const { return m_poRasterBand->GetXSize(); }
 		inline double* getGeoTransform() const { return (double*)m_geoTransform; }
 
-		void readBlock(BlockRect rect, BlockRect clippedRect, float* block);
+		void readBlock(const BlockRect rect, float * const __restrict block);
 
 	private:
 		GDALDataset* m_poDataset;

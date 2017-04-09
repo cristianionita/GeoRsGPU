@@ -62,65 +62,19 @@ InputFileManager::~InputFileManager()
 	GDALClose(m_poDataset);
 }
 
-void InputFileManager::readBlock(const BlockRect rect, const BlockRect clippedRect, float* block)
+void InputFileManager::readBlock(const BlockRect rect, float * const __restrict block)
 {
-	if (true || clippedRect == rect)
+	// Read data from file
+	CPLErr result = m_poRasterBand->RasterIO(
+		GDALRWFlag::GF_Read,
+		rect.getColStart(), rect.getRowStart(),
+		rect.getWidth(), rect.getHeight(),
+		block,
+		rect.getWidth(), rect.getHeight(),
+		GDALDataType::GDT_Float32, 0, 0);
+
+	if (result != CE_None)
 	{
-		// Read data from file
-		CPLErr result = m_poRasterBand->RasterIO(
-			GDALRWFlag::GF_Read,
-			clippedRect.getColStart(), clippedRect.getRowStart(),
-			clippedRect.getWidth(), clippedRect.getHeight(),
-			block,
-			clippedRect.getWidth(), clippedRect.getHeight(),
-			GDALDataType::GDT_Float32, 0, 0);
-
-		if (result != CE_None)
-		{
-			throw std::runtime_error("Error reading from the input file.");
-		}
-	}
-	else
-	{
-		float* buffer = new float[clippedRect.getWidth() * clippedRect.getHeight()];
-		CPLErr result = m_poRasterBand->RasterIO(
-			GDALRWFlag::GF_Read,
-			clippedRect.getColStart(), clippedRect.getRowStart(),
-			clippedRect.getWidth(), clippedRect.getHeight(),
-			buffer,
-			clippedRect.getWidth(), clippedRect.getHeight(),
-			GDALDataType::GDT_Float32, 0, 0);
-
-		if (result != CE_None)
-		{
-			throw std::runtime_error("Error reading from the input file.");
-		}
-
-		for (int rowIndex = rect.getRowStart();
-			rowIndex < rect.getRowStart() + rect.getHeight();
-			rowIndex++)
-		{
-			for (int colIndex = rect.getColStart();
-				colIndex < rect.getColStart() + rect.getWidth();
-				colIndex++)
-			{
-				int blockRowIndex = rowIndex - rect.getRowStart();
-				int blockColIndex = colIndex - rect.getColStart();
-
-				if (clippedRect.contains(rowIndex, colIndex))
-				{
-					int bufferRowIndex = rowIndex - clippedRect.getRowStart();
-					int bufferColIndex = colIndex - clippedRect.getColStart();
-					block[blockRowIndex * rect.getWidth() + blockColIndex] =
-						buffer[bufferRowIndex * clippedRect.getWidth() + bufferColIndex];
-				}
-				else
-				{
-					block[blockRowIndex * rect.getWidth() + blockColIndex] = -13.0f;
-				}
-			}
-		}
-
-		delete[] buffer;
+		throw std::runtime_error("Error reading from the input file.");
 	}
 }
