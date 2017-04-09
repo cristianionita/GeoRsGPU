@@ -33,6 +33,7 @@ void showOutBlock(float* out, BlockRect rect)
 		}
 		std::cout << std::endl;
 	}
+	std::cout << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
 
 	int borderSize = 1;
 	int blockHeight = 800, blockWidth = 700;
+	//int blockHeight = 5, blockWidth = 8;
 	try
 	{
 		InputFileManager in(inputFilePath);		
@@ -77,14 +79,18 @@ int main(int argc, char *argv[])
 			blockWidth + borderSize * 2);
 
 		for (int i = 0; i < bm.getNumberOfBlocks(); i++)
+		//for (int i = 0; i < 3; i++)
 		{
 			BlockRect rect = bm.getBlock(i, borderSize, false);
 			BlockRect rectClipped = bm.getBlock(i, borderSize, true);
+			BlockRect rectOut = bm.getBlock(i);
 			//cout << rectClipped << " -> " << bm.getBlock(i) << endl;
 			in.readBlock(rect, rectClipped, gpu.getInBlock());
-			gpu.processBlock(rectClipped);
-						
-			out.writeBlock(bm.getBlock(i), gpu.getOutBlock());
+			gpu.processBlock(rectClipped, rectOut);
+			
+			//showOutBlock(gpu.getOutBlock(), rectOut);
+
+			out.writeBlock(rectOut, gpu.getOutBlock());
 		}
 	}
 	catch (runtime_error e)

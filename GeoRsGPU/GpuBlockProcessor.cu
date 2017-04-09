@@ -26,41 +26,57 @@
 
 using namespace GeoRsGpu;
 
-#define ELEM(vector, line, column) vector[(line) * nLineSize + (column)]
+#define ELEM(vector, line, column) vector[(line) * width + (column)]
 
 __global__ void slopeZevenbergen(
 	const float * const __restrict input, float * const __restrict output,
-	const int nNumberOfLines, const int nLineSize,
+	const int height, const int width,
+	const int heightOut, const int widthOut,
+	const int deltaRow, const int deltaCol,
 	const float cellSizeX, const float cellSizeY, const float radDegree)
 {
+	int rowIndex = blockIdx.y * blockDim.y + threadIdx.y;
 	int colIndex = blockIdx.x * blockDim.x + threadIdx.x;
-	int lineIndex = blockIdx.y * blockDim.y + threadIdx.y;
+	
+	int colIndexOut = colIndex + deltaCol;
+	int rowIndexOut = rowIndex + deltaRow;	
 
-	if (colIndex > 0 && colIndex < nLineSize - 1
-		&& lineIndex > 0 && lineIndex < nNumberOfLines - 1)
+	if (colIndexOut < 0 || colIndexOut >= widthOut
+		|| rowIndexOut < 0 || rowIndexOut >= heightOut)
 	{
-		//float a = ELEM(input, lineIndex - 1, colIndex - 1);
-		//float b = ELEM(input, lineIndex - 1, colIndex);
-		//float c = ELEM(input, lineIndex - 1, colIndex + 1);
+		// We don't have any output value
+		return;
+	}
 
-		//float d = ELEM(input, lineIndex, colIndex - 1);
-		//float e = ELEM(input, lineIndex, colIndex);
-		//float f = ELEM(input, lineIndex, colIndex + 1);
+	float& outputElem = output[rowIndexOut * widthOut + colIndexOut];
 
-		//float g = ELEM(input, lineIndex + 1, colIndex - 1);
-		//float h = ELEM(input, lineIndex + 1, colIndex);
-		//float i = ELEM(input, lineIndex + 1, colIndex + 1);
+	if (colIndex > 0 && colIndex < width - 1
+		&& rowIndex > 0 && rowIndex < height - 1)
+	{
+		// We have everything we need
+		float a = ELEM(input, rowIndex - 1, colIndex - 1);
+		float b = ELEM(input, rowIndex - 1, colIndex);
+		float c = ELEM(input, rowIndex - 1, colIndex + 1);
+
+		float d = ELEM(input, rowIndex, colIndex - 1);
+		float e = ELEM(input, rowIndex, colIndex);
+		float f = ELEM(input, rowIndex, colIndex + 1);
+
+		float g = ELEM(input, rowIndex + 1, colIndex - 1);
+		float h = ELEM(input, rowIndex + 1, colIndex);
+		float i = ELEM(input, rowIndex + 1, colIndex + 1);
 
 		//float dZdY = (b - h) / (2 * cellSizeY);
 		//float dZdX = (f - d) / (2 * cellSizeX);
 		//ELEM(output, lineIndex, colIndex) = (sqrt(pow(dZdX, 2) + pow(dZdY, 2))) * radDegree;
-		ELEM(output, lineIndex, colIndex) = 1;
+		outputElem = 1;
 	}
 	else if (
-		colIndex == 0 || lineIndex == 0 || 
-		colIndex == nLineSize - 1 || lineIndex == nNumberOfLines - 1)
+		colIndex == 0 || rowIndex == 0 || 
+		colIndex == width - 1 || rowIndex == height - 1)
 	{
-		ELEM(output, lineIndex, colIndex) = 2;
+		// We are on the edge - we don't have all surrounding values
+		outputElem = 2;
 	}
 }
 
@@ -112,24 +128,30 @@ GpuBlockProcessor::~GpuBlockProcessor()
 	executeCuda([]() { return cudaDeviceReset(); });
 }
 
-void GpuBlockProcessor::processBlock(BlockRect rect)
+void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 {
-	size_t blockSizeBytes = rect.getWidth() * rect.getHeight() * sizeof(float);
+	size_t blockSizeBytes = rectIn.getWidth() * rectIn.getHeight() * sizeof(float);
 	executeCuda([&]() { return cudaMemcpy(
 		m_devIn, m_in, blockSizeBytes, cudaMemcpyHostToDevice); });
 	executeCuda([&]() { return cudaDeviceSynchronize(); });
 
 	dim3 grid;
 	dim3 block(16, 16);
-	grid.x = rect.getWidth() / block.x + (rect.getWidth() % block.x == 0 ? 0 : 1);
-	grid.y = rect.getHeight() / block.y + (rect.getHeight() % block.y == 0 ? 0 : 1);
+	grid.x = rectIn.getWidth() / block.x + (rectIn.getWidth() % block.x == 0 ? 0 : 1);
+	grid.y = rectIn.getHeight() / block.y + (rectIn.getHeight() % block.y == 0 ? 0 : 1);
 	
 	const float cellSizeX = 25.0f;
 	const float cellSizeY = 25.0f;
 	const float radDegree = 57.29578f;
 
 	slopeZevenbergen <<<grid, block>>> (
-		m_devIn, m_devOut, rect.getHeight(), rect.getWidth(), cellSizeX, cellSizeY, radDegree);
+		m_devIn, m_devOut, 
+		rectIn.getHeight(), rectIn.getWidth(),
+		rectOut.getHeight(), rectOut.getWidth(),
+		rectIn.getRowStart() - rectOut.getRowStart(),
+		rectIn.getColStart() - rectOut.getColStart(),
+		cellSizeX, cellSizeY, radDegree);
+
 	executeCuda([&]() { return cudaDeviceSynchronize(); });
 
 	executeCuda([&]() { return cudaMemcpy(

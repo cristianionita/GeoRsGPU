@@ -42,7 +42,7 @@ namespace GeoRsGpu {
 		inline float* getInBlock() { return m_in; }
 		inline float* getOutBlock() { return m_out; }
 
-		void processBlock(BlockRect rect);
+		void processBlock(BlockRect rectIn, BlockRect rectOut);
 
 	private:
 
