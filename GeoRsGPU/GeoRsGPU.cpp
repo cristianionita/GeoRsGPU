@@ -6,9 +6,34 @@
 #include "BlockManager.h"
 #include "InputFileManager.h"
 #include "OutputFileManager.h"
+#include "GpuBlockProcessor.cuh"
 
 using namespace GeoRsGpu;
 using namespace std;
+
+ostream& operator<< (ostream& out, BlockRect& const block)
+{
+	out << "[" << block.getRowStart()
+		<< "," << block.getColStart()
+		<< " " << block.getHeight()
+		<< "x" << block.getWidth() << "]";
+
+	return out;
+}
+
+#define ELEM(vector, line, column) vector[(line) * nLineSize + (column)]
+void showOutBlock(float* out, BlockRect rect)
+{
+	int nLineSize = rect.getWidth();
+	for (int ri = 0; ri < rect.getHeight(); ri++)
+	{
+		for (int ci = 0; ci < rect.getWidth(); ci++)
+		{
+			std::cout << ELEM(out, ri, ci) << " ";
+		}
+		std::cout << std::endl;
+	}
+}
 
 int main(int argc, char *argv[])
 {
@@ -37,50 +62,30 @@ int main(int argc, char *argv[])
 	string inputFilePath = "d:\\GeoGPUTeste\\Data\\dem9112.tif";
 	//string inputFilePath = "d:\\Dropbox\\ASE\\GIS\\EUD_CP-DEMS_4500025000-AA.tif";
 	string outputFilePath = "d:\\temp\\georsgpu_result.tif";
+	RasterCommand command = RasterCommand::Slope;
 
 	int borderSize = 1;
-	int blockHeight = 200, blockWidth = 400;
+	int blockHeight = 800, blockWidth = 700;
 	try
 	{
 		InputFileManager in(inputFilePath);		
 		OutputFileManager out(outputFilePath, 
 			in.getGeoTransform(), in.getHeight(), in.getWidth());
 		BlockManager bm(in.getHeight(), in.getWidth(), blockHeight, blockWidth);
-
-		float* block = new float[(blockHeight + borderSize * 2) * (blockWidth + borderSize * 2)];
+		GpuBlockProcessor gpu(command, 
+			blockHeight + borderSize * 2,
+			blockWidth + borderSize * 2);
 
 		for (int i = 0; i < bm.getNumberOfBlocks(); i++)
 		{
 			BlockRect rect = bm.getBlock(i, borderSize, false);
 			BlockRect rectClipped = bm.getBlock(i, borderSize, true);
-			in.readBlock(rect, rectClipped, block);
-			out.writeBlock(rectClipped, block);
-			/*if (bm.isEdgeBlock(i)) {
-				cout << "Processing " << i
-					<< "(" << bm.getBlockRowIndex(i) << "," << bm.getBlockColIndex(i) << ")"
-					<< " ("
-					<< bm.getBlock(i, 2, false).getRowStart()
-					<< ","
-					<< bm.getBlock(i, 2, false).getColStart()
-					<< ","
-					<< bm.getBlock(i, 2, false).getHeight()
-					<< ","
-					<< bm.getBlock(i, 2, false).getWidth()
-					<< ")"
-					<< " ("
-					<< bm.getBlock(i, 2, true).getRowStart()
-					<< ","
-					<< bm.getBlock(i, 2, true).getColStart()
-					<< ","
-					<< bm.getBlock(i, 2, true).getHeight()
-					<< ","
-					<< bm.getBlock(i, 2, true).getWidth()
-					<< ")"
-					<< endl;
-			}*/
+			//cout << rectClipped << " -> " << bm.getBlock(i) << endl;
+			in.readBlock(rect, rectClipped, gpu.getInBlock());
+			gpu.processBlock(rectClipped);
+						
+			out.writeBlock(bm.getBlock(i), gpu.getOutBlock());
 		}
-
-		delete[] block;
 	}
 	catch (runtime_error e)
 	{

@@ -202,9 +202,14 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="BlockManager.h" />
     <ClInclude Include="BlockRect.h" />
     <ClInclude Include="CommandLineParser.h" />
+    <ClInclude Include="GpuBlockProcessor.cuh" />
     <ClInclude Include="InputFileManager.h" />
     <ClInclude Include="OutputFileManager.h" />
     <ClInclude Include="RasterCommand.h" />
+    <ClInclude Include="RasterKernels.cuh" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="GpuBlockProcessor.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

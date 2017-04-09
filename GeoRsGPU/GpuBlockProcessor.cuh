@@ -20,49 +20,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "OutputFileManager.h"
+#ifndef GEORSGPU_GPU_BLOCK_PROCESSOR_H
+#define GEORSGPU_GPU_BLOCK_PROCESSOR_H
 
-using namespace GeoRsGpu;
+#include <functional>
 
-OutputFileManager::OutputFileManager(std::string filePath,
-	double* geoTransform, int height, int width)
-{
-	// Delete output file if exists
-	struct stat fileStat;
-	if (stat(filePath.c_str(), &fileStat) == 0)
-	{
-		if (remove(filePath.c_str()) != 0)
-		{
-			throw std::runtime_error("Error deleting existing output file.");
-		}
-	}
+#include "cuda_runtime.h"
 
-	// Open file using GDAL
-	GDALDriver* poDriver = GetGDALDriverManager()->GetDriverByName("GTiff");
-	m_poDataset = poDriver->Create(
-		filePath.c_str(), width, height, 1, GDT_Float32, NULL);
-	m_poDataset->SetGeoTransform(geoTransform);
+#include "BlockRect.h"
+#include "RasterCommand.h"
 
-	m_poRasterBand = m_poDataset->GetRasterBand(1);
-}
+namespace GeoRsGpu {
 
-OutputFileManager::~OutputFileManager()
-{
-	GDALClose(m_poDataset);
-}
+	class GpuBlockProcessor {
+	public:
+		
+		GpuBlockProcessor(RasterCommand command,
+			int maxBlockHeight, int maxBlockWidth);
+		~GpuBlockProcessor();
 
-void OutputFileManager::writeBlock(BlockRect rect, float* block)
-{
-	CPLErr result = m_poRasterBand->RasterIO(
-		GDALRWFlag::GF_Write,
-		rect.getColStart(), rect.getRowStart(),
-		rect.getWidth(), rect.getHeight(),
-		block,
-		rect.getWidth(), rect.getHeight(),
-		GDALDataType::GDT_Float32, 0, 0);
+		inline float* getInBlock() { return m_in; }
+		inline float* getOutBlock() { return m_out; }
 
-	if (result != CE_None)
-	{
-		throw std::runtime_error("Error reading from the input file.");
-	}
-}
+		void processBlock(BlockRect rect);
+
+	private:
+
+		RasterCommand m_command;
+		int m_maxBlockHeight;
+		int m_maxBlockWidth;
+
+		float* m_in;
+		float* m_out;
+		float* m_devIn;
+		float* m_devOut;
+
+		void executeCuda(std::function<cudaError_t()> cudaFunc);
+		void checkCuda();
+	};
+
+};
+#endif // !GEORSGPU_GPU_BLOCK_PROCESSOR_H
+
