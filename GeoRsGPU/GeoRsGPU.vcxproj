@@ -191,7 +191,20 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BlockManager.cpp" />
+    <ClCompile Include="BlockRect.cpp" />
+    <ClCompile Include="CommandLineParser.cpp" />
     <ClCompile Include="GeoRsGPU.cpp" />
+    <ClCompile Include="InputFileManager.cpp" />
+    <ClCompile Include="OutputFileManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BlockManager.h" />
+    <ClInclude Include="BlockRect.h" />
+    <ClInclude Include="CommandLineParser.h" />
+    <ClInclude Include="InputFileManager.h" />
+    <ClInclude Include="OutputFileManager.h" />
+    <ClInclude Include="RasterCommand.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

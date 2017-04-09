@@ -1,95 +1,91 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <args.hxx>
 
-enum RasterCommand
-{
-	Slope,
-	Hillshade
-};
+#include <iostream>
+
+#include "RasterCommand.h"
+#include "CommandLineParser.h"
+#include "BlockManager.h"
+#include "InputFileManager.h"
+#include "OutputFileManager.h"
+
+using namespace GeoRsGpu;
+using namespace std;
 
 int main(int argc, char *argv[])
 {
+	/*CommandLineParser parser(argc, argv);
 
-	std::cerr << "GeoRsGPU - v1.0.100" << std::endl << std::endl;
+	if (!parser.isValid())
+	{
+		return 1;
+	}
 
-	std::unordered_map<std::string, RasterCommand> map{
-		{ "slope", RasterCommand::Slope },
-		{ "hillshade", RasterCommand::Hillshade } };
+	std::cout << "Command: "
+		<< static_cast<std::underlying_type<RasterCommand>::type>(parser.getCommand())
+		<< std::endl;
+	std::cout << "Input: " << parser.getInputFileName() << std::endl;
+	std::cout << "Output: " << parser.getOutputFileName() << std::endl;
 
-	args::ArgumentParser parser(
-		"GeoRsGPU - GPU accelerated raster processing (requires NVIDIA CUDA)",
-		"\n"
-		"Command-specific documentation\n"
-		"\n"
-		"\n"
-		"slope:\n"
-		"   Documentation for slope.\n"
-		"\n"
-		"hillshade:\n"
-		"   Documentation for hillshade.\n"
-		"\n"
-		"Examples:\n"
-		"\n"
-		"GeoRsGPU slope \"c:\\gis data\\map.tif\" d:\\temp\\map_slope.tif BlockWidth=200 BlockHeight=400 Algorithm=B\n"
-		"\n"
-	);
-	parser.Prog("GeoRsGPU.exe");
+	if (parser.isIntParameterValid("BlockWidth", 0))
+	{
+		std::cout << "BlockWidth: " << parser.getIntParameter("BlockWidth") << std::endl;
+	}
+	else
+	{
+		std::cout << "BlockWidth not found - using default value" << std::endl;
+	}*/
 
-	args::Group group(parser, "Required arguments:", args::Group::Validators::All);
+	string inputFilePath = "d:\\GeoGPUTeste\\Data\\dem9112.tif";
+	//string inputFilePath = "d:\\Dropbox\\ASE\\GIS\\EUD_CP-DEMS_4500025000-AA.tif";
+	string outputFilePath = "d:\\temp\\georsgpu_result.tif";
 
-	args::MapPositional<std::string, RasterCommand> posCommand(group,
-		"command", 
-		"Raster command to be executed. One of: slope, hillshade",		
-		map);
-	
-	args::Positional<std::string> posInputFile(group,
-		"input", "The path to the input file.");
-	args::Positional<std::string> posOutputFile(group, 
-		"output", "The path to the output file.");
-
-	args::PositionalList<std::string> parameters(parser, 
-		"parameters", "Optional parameters list.");
-
-	args::HelpFlag help(parser, "help", "Display this help menu", { 'h', "help" });
-
+	int borderSize = 1;
+	int blockHeight = 200, blockWidth = 400;
 	try
 	{
-		parser.ParseCLI(argc, argv);
-		RasterCommand cmd = posCommand.Get();
-		std::cout << "Command:" << cmd << std::endl;
-		std::cout << "Input:" << posInputFile.Get() << std::endl;
-		std::cout << "Output:" << posOutputFile.Get() << std::endl;
-		std::cout << "Optional parameters:" << std::endl;
-		std::vector<std::string> v = parameters.Get();
-		for (int i = 0; i < v.size(); i++)
+		InputFileManager in(inputFilePath);		
+		OutputFileManager out(outputFilePath, 
+			in.getGeoTransform(), in.getHeight(), in.getWidth());
+		BlockManager bm(in.getHeight(), in.getWidth(), blockHeight, blockWidth);
+
+		float* block = new float[(blockHeight + borderSize * 2) * (blockWidth + borderSize * 2)];
+
+		for (int i = 0; i < bm.getNumberOfBlocks(); i++)
 		{
-			std::cout << "   " << v[i] << std::endl;
+			BlockRect rect = bm.getBlock(i, borderSize, false);
+			BlockRect rectClipped = bm.getBlock(i, borderSize, true);
+			in.readBlock(rect, rectClipped, block);
+			out.writeBlock(rectClipped, block);
+			/*if (bm.isEdgeBlock(i)) {
+				cout << "Processing " << i
+					<< "(" << bm.getBlockRowIndex(i) << "," << bm.getBlockColIndex(i) << ")"
+					<< " ("
+					<< bm.getBlock(i, 2, false).getRowStart()
+					<< ","
+					<< bm.getBlock(i, 2, false).getColStart()
+					<< ","
+					<< bm.getBlock(i, 2, false).getHeight()
+					<< ","
+					<< bm.getBlock(i, 2, false).getWidth()
+					<< ")"
+					<< " ("
+					<< bm.getBlock(i, 2, true).getRowStart()
+					<< ","
+					<< bm.getBlock(i, 2, true).getColStart()
+					<< ","
+					<< bm.getBlock(i, 2, true).getHeight()
+					<< ","
+					<< bm.getBlock(i, 2, true).getWidth()
+					<< ")"
+					<< endl;
+			}*/
 		}
-	}
-	catch (args::Help)
-	{
-		std::cout << parser;
-		return 0;
-	}
-	catch (args::ParseError e)
-	{
-		std::cerr << "ERROR parsing arguments: " << e.what()
-			<< std::endl
-			<< "See 'GeoRsGPU --help' for documentation"
-			<< std::endl;
 
-		return 1;
+		delete[] block;
 	}
-	catch (args::ValidationError e)
+	catch (runtime_error e)
 	{
-		std::cerr << "ERROR parsing arguments: " << e.what()
-			<< std::endl << std::endl
-			<< "See 'GeoRsGPU --help' for documentation"
-			<< std::endl;
-
-		return 1;
+		cerr << "ERROR: " << e.what() << endl;
 	}
+
 	return 0;
 }
