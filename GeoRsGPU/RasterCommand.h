@@ -28,7 +28,8 @@ namespace GeoRsGpu {
 	enum class RasterCommand
 	{
 		Slope,
-		Hillshade
+		Hillshade,
+		Aspect
 	};
 }
 

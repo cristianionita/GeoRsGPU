@@ -23,61 +23,9 @@
 #include <stdexcept>
 
 #include "GpuBlockProcessor.cuh"
+#include "DemKernels.cuh"
 
 using namespace GeoRsGpu;
-
-#define ELEM(vector, line, column) vector[(line) * width + (column)]
-
-__global__ void slopeZevenbergen(
-	const float * const __restrict input, float * const __restrict output,
-	const int height, const int width,
-	const int heightOut, const int widthOut,
-	const int deltaRow, const int deltaCol,
-	const float cellSizeX, const float cellSizeY, const float radDegree)
-{
-	int rowIndex = blockIdx.y * blockDim.y + threadIdx.y;
-	int colIndex = blockIdx.x * blockDim.x + threadIdx.x;
-	
-	int colIndexOut = colIndex + deltaCol;
-	int rowIndexOut = rowIndex + deltaRow;	
-
-	if (colIndexOut < 0 || colIndexOut >= widthOut
-		|| rowIndexOut < 0 || rowIndexOut >= heightOut)
-	{
-		// We don't have any output value
-		return;
-	}
-
-	float& outputElem = output[rowIndexOut * widthOut + colIndexOut];
-
-	if (colIndex > 0 && colIndex < width - 1
-		&& rowIndex > 0 && rowIndex < height - 1)
-	{
-		// We have everything we need
-		float a = ELEM(input, rowIndex - 1, colIndex - 1);
-		float b = ELEM(input, rowIndex - 1, colIndex);
-		float c = ELEM(input, rowIndex - 1, colIndex + 1);
-
-		float d = ELEM(input, rowIndex, colIndex - 1);
-		float e = ELEM(input, rowIndex, colIndex);
-		float f = ELEM(input, rowIndex, colIndex + 1);
-
-		float g = ELEM(input, rowIndex + 1, colIndex - 1);
-		float h = ELEM(input, rowIndex + 1, colIndex);
-		float i = ELEM(input, rowIndex + 1, colIndex + 1);
-
-		float dZdY = (b - h) / (2 * cellSizeY);
-		float dZdX = (f - d) / (2 * cellSizeX);
-		outputElem = (sqrt(pow(dZdX, 2) + pow(dZdY, 2))) * radDegree;
-	}
-	else if (
-		colIndex == 0 || rowIndex == 0 || 
-		colIndex == width - 1 || rowIndex == height - 1)
-	{
-		// We are on the edge - we don't have all surrounding values
-		outputElem = 0;
-	}
-}
 
 const int MAX_ERROR_MESSAGE_LEN = 300;
 
@@ -127,6 +75,56 @@ GpuBlockProcessor::~GpuBlockProcessor()
 	executeCuda([]() { return cudaDeviceReset(); });
 }
 
+template <class T>
+__global__ void gpuKernel(
+	const float * const __restrict input, float * const __restrict output,
+	const int height, const int width,
+	const int heightOut, const int widthOut,
+	const int deltaRow, const int deltaCol,
+	const float cellSizeX, const float cellSizeY, const float radDegree)
+{
+	int rowIndex = blockIdx.y * blockDim.y + threadIdx.y;
+	int colIndex = blockIdx.x * blockDim.x + threadIdx.x;
+
+	int colIndexOut = colIndex + deltaCol;
+	int rowIndexOut = rowIndex + deltaRow;
+
+	if (colIndexOut < 0 || colIndexOut >= widthOut
+		|| rowIndexOut < 0 || rowIndexOut >= heightOut)
+	{
+		// We don't have any output value
+		return;
+	}
+
+	float& outputElem = output[rowIndexOut * widthOut + colIndexOut];
+
+	if (colIndex > 0 && colIndex < width - 1
+		&& rowIndex > 0 && rowIndex < height - 1)
+	{
+		// We have everything we need
+		float a = input[width * (rowIndex - 1) + colIndex - 1];
+		float b = input[width * (rowIndex - 1) + colIndex];
+		float c = input[width * (rowIndex - 1) + colIndex + 1];
+
+		float d = input[width * rowIndex + colIndex - 1];
+		float e = input[width * rowIndex + colIndex];
+		float f = input[width * rowIndex + colIndex + 1];
+
+		float g = input[width * (rowIndex + 1) + colIndex - 1];
+		float h = input[width * (rowIndex + 1) + colIndex];
+		float i = input[width * (rowIndex + 1) + colIndex + 1];
+
+		outputElem = T()(a, b, c, d, e, f, g, h, i, cellSizeX, cellSizeY, radDegree);
+	}
+	else if (
+		colIndex == 0 || rowIndex == 0 ||
+		colIndex == width - 1 || rowIndex == height - 1)
+	{
+		// We are on the edge - we don't have all surrounding values
+		outputElem = 0;
+	}
+}
+
 void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 {
 	size_t blockSizeBytes = rectIn.getWidth() * rectIn.getHeight() * sizeof(float);
@@ -138,18 +136,46 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 	dim3 block(16, 16);
 	grid.x = rectIn.getWidth() / block.x + (rectIn.getWidth() % block.x == 0 ? 0 : 1);
 	grid.y = rectIn.getHeight() / block.y + (rectIn.getHeight() % block.y == 0 ? 0 : 1);
-	
+
 	const float cellSizeX = 25.0f;
 	const float cellSizeY = 25.0f;
 	const float radDegree = 57.29578f;
 
-	slopeZevenbergen <<<grid, block>>> (
-		m_devIn, m_devOut, 
-		rectIn.getHeight(), rectIn.getWidth(),
-		rectOut.getHeight(), rectOut.getWidth(),
-		rectIn.getRowStart() - rectOut.getRowStart(),
-		rectIn.getColStart() - rectOut.getColStart(),
-		cellSizeX, cellSizeY, radDegree);
+	switch (m_command)
+	{
+	case RasterCommand::Slope:
+		gpuKernel<KernelSlopeZevenbergen> <<<grid, block >>> (
+			m_devIn, m_devOut,
+			rectIn.getHeight(), rectIn.getWidth(),
+			rectOut.getHeight(), rectOut.getWidth(),
+			rectIn.getRowStart() - rectOut.getRowStart(),
+			rectIn.getColStart() - rectOut.getColStart(),
+			cellSizeX, cellSizeY, radDegree);
+		break;
+	case RasterCommand::Hillshade:
+		gpuKernel<KernelHillshade> <<<grid, block>>> (
+			m_devIn, m_devOut,
+			rectIn.getHeight(), rectIn.getWidth(),
+			rectOut.getHeight(), rectOut.getWidth(),
+			rectIn.getRowStart() - rectOut.getRowStart(),
+			rectIn.getColStart() - rectOut.getColStart(),
+			cellSizeX, cellSizeY, radDegree);
+		break;
+	case RasterCommand::Aspect:
+		gpuKernel<KernelAspect> <<<grid, block>>> (
+			m_devIn, m_devOut,
+			rectIn.getHeight(), rectIn.getWidth(),
+			rectOut.getHeight(), rectOut.getWidth(),
+			rectIn.getRowStart() - rectOut.getRowStart(),
+			rectIn.getColStart() - rectOut.getColStart(),
+			cellSizeX, cellSizeY, radDegree);
+		break;
+	default:
+		char buffer[MAX_ERROR_MESSAGE_LEN];
+		snprintf(buffer, sizeof(buffer),
+			"Command #%d is not supported.", m_command);
+		throw std::runtime_error(buffer);
+	}
 
 	executeCuda([&]() { return cudaDeviceSynchronize(); });
 
