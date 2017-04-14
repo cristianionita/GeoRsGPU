@@ -27,18 +27,19 @@
 
 namespace GeoRsGpu {
 
+	__device__ const float RadDegree = 57.29578f;
+
 	struct KernelSlopeZevenbergen
 	{
 		__device__ float operator()(
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY,
-			const float radDegree)
+			const float cellSizeX, const float cellSizeY)
 		{
 			float dZdY = (b - h) / (2 * cellSizeY);
 			float dZdX = (f - d) / (2 * cellSizeX);
-			return (sqrt(pow(dZdX, 2) + pow(dZdY, 2))) * radDegree;
+			return (sqrt(pow(dZdX, 2) + pow(dZdY, 2))) * RadDegree;
 		}
 	};
 
@@ -48,8 +49,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY,
-			const float radDegree)
+			const float cellSizeX, const float cellSizeY)
 		{
 			float dZdY = ((g + 2 * h + i) - (a + 2 * b + c)) / (8 * cellSizeY);
 			float dZdX = ((c + 2 * f + i) - (a + 2 * d + g)) / (8 * cellSizeX);
@@ -62,9 +62,7 @@ namespace GeoRsGpu {
 			float F = (-a + c + g - i) / 4 * pow(cellSizeX, 2);
 			float G = (-d + f) / 2 * cellSizeX;
 			float H = (b - h) / 2 * cellSizeX;
-			float I = e;
 
-			//float dif = (-H / -G);
 			float aspect = atan2f(-H, -G);
 			if (aspect < 0)
 				aspect = 90.0 - aspect;
@@ -89,8 +87,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY,
-			const float radDegree)
+			const float cellSizeX, const float cellSizeY)
 		{
 			float A = ((a + c + g + i) / 4 - (b + d + f + h) / 2 + e) / pow(cellSizeX, 4);
 			float B = ((a + c - g - i) / 4 - (b - h) / 2) / pow(cellSizeX, 3);
@@ -100,9 +97,8 @@ namespace GeoRsGpu {
 			float F = (-a + c + g - i) / 4 * pow(cellSizeX, 2);
 			float G = (-d + f) / 2 * cellSizeX;
 			float H = (b - h) / 2 * cellSizeX;
-			float I = e;
-			//float dif = (-H / -G);
-			float aspect = atan2f(-H, -G) * radDegree;
+
+			float aspect = atan2f(-H, -G) * RadDegree;
 			if (aspect < 0)
 				aspect = 90.0 - aspect;
 			else if (aspect > 90.0)

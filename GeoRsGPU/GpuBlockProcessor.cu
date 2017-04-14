@@ -75,13 +75,13 @@ GpuBlockProcessor::~GpuBlockProcessor()
 	executeCuda([]() { return cudaDeviceReset(); });
 }
 
-template <class T>
+template <typename EQ>
 __global__ void gpuKernel(
 	const float * const __restrict input, float * const __restrict output,
 	const int height, const int width,
 	const int heightOut, const int widthOut,
 	const int deltaRow, const int deltaCol,
-	const float cellSizeX, const float cellSizeY, const float radDegree)
+	const float cellSizeX, const float cellSizeY)
 {
 	int rowIndex = blockIdx.y * blockDim.y + threadIdx.y;
 	int colIndex = blockIdx.x * blockDim.x + threadIdx.x;
@@ -114,7 +114,7 @@ __global__ void gpuKernel(
 		float h = input[width * (rowIndex + 1) + colIndex];
 		float i = input[width * (rowIndex + 1) + colIndex + 1];
 
-		outputElem = T()(a, b, c, d, e, f, g, h, i, cellSizeX, cellSizeY, radDegree);
+		outputElem = EQ()(a, b, c, d, e, f, g, h, i, cellSizeX, cellSizeY);
 	}
 	else if (
 		colIndex == 0 || rowIndex == 0 ||
@@ -137,39 +137,35 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 	grid.x = rectIn.getWidth() / block.x + (rectIn.getWidth() % block.x == 0 ? 0 : 1);
 	grid.y = rectIn.getHeight() / block.y + (rectIn.getHeight() % block.y == 0 ? 0 : 1);
 
-	const float cellSizeX = 25.0f;
-	const float cellSizeY = 25.0f;
-	const float radDegree = 57.29578f;
+	// input and output sizes (different for edge cases)
+	int inH = rectIn.getHeight(), inW = rectIn.getWidth();
+	int outH = rectOut.getHeight(), outW = rectOut.getWidth();
+
+	// delta row and column - specify how the output block
+	// is positioned against the input block (non zero for edge cases)
+	int dR = rectIn.getRowStart() - rectOut.getRowStart();
+	int dC = rectIn.getColStart() - rectOut.getColStart();
+
+	// cell sizes
+	const float csX = 25.0f;
+	const float csY = 25.0f;
+
+	#define KERNEL_PARAMS m_devIn, m_devOut, inH, inW, outH, outW, dR, dC, csX, csY
 
 	switch (m_command)
 	{
 	case RasterCommand::Slope:
-		gpuKernel<KernelSlopeZevenbergen> <<<grid, block >>> (
-			m_devIn, m_devOut,
-			rectIn.getHeight(), rectIn.getWidth(),
-			rectOut.getHeight(), rectOut.getWidth(),
-			rectIn.getRowStart() - rectOut.getRowStart(),
-			rectIn.getColStart() - rectOut.getColStart(),
-			cellSizeX, cellSizeY, radDegree);
+		gpuKernel<KernelSlopeZevenbergen> <<<grid, block >>> (KERNEL_PARAMS);
 		break;
+
 	case RasterCommand::Hillshade:
-		gpuKernel<KernelHillshade> <<<grid, block>>> (
-			m_devIn, m_devOut,
-			rectIn.getHeight(), rectIn.getWidth(),
-			rectOut.getHeight(), rectOut.getWidth(),
-			rectIn.getRowStart() - rectOut.getRowStart(),
-			rectIn.getColStart() - rectOut.getColStart(),
-			cellSizeX, cellSizeY, radDegree);
+		gpuKernel<KernelHillshade> <<<grid, block>>> (KERNEL_PARAMS);
 		break;
+
 	case RasterCommand::Aspect:
-		gpuKernel<KernelAspect> <<<grid, block>>> (
-			m_devIn, m_devOut,
-			rectIn.getHeight(), rectIn.getWidth(),
-			rectOut.getHeight(), rectOut.getWidth(),
-			rectIn.getRowStart() - rectOut.getRowStart(),
-			rectIn.getColStart() - rectOut.getColStart(),
-			cellSizeX, cellSizeY, radDegree);
+		gpuKernel<KernelAspect> <<<grid, block >>> (KERNEL_PARAMS);
 		break;
+
 	default:
 		char buffer[MAX_ERROR_MESSAGE_LEN];
 		snprintf(buffer, sizeof(buffer),
