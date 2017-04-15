@@ -29,11 +29,13 @@ using namespace GeoRsGpu;
 
 const int MAX_ERROR_MESSAGE_LEN = 300;
 
-GpuBlockProcessor::GpuBlockProcessor(RasterCommand command,
+GpuBlockProcessor::GpuBlockProcessor(
+	CommandLineParser& parser,
 	int maxBlockHeight, int maxBlockWidth,
 	float cellSizeX, float cellSizeY)
+	: m_commandLineParser(parser)
 {
-	m_command = command;
+	m_command = m_commandLineParser.getCommand();
 	m_maxBlockHeight = maxBlockHeight;
 	m_maxBlockWidth = maxBlockWidth;
 

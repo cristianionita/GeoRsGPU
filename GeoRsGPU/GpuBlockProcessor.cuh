@@ -29,13 +29,14 @@
 
 #include "BlockRect.h"
 #include "RasterCommand.h"
+#include "CommandLineParser.h"
 
 namespace GeoRsGpu {
 
 	class GpuBlockProcessor {
 	public:
 		
-		GpuBlockProcessor(RasterCommand command,
+		GpuBlockProcessor(CommandLineParser& parser,
 			int maxBlockHeight, int maxBlockWidth,
 			float cellSizeX, float cellSizeY);
 		~GpuBlockProcessor();
@@ -48,6 +49,7 @@ namespace GeoRsGpu {
 	private:
 
 		RasterCommand m_command;
+		CommandLineParser& m_commandLineParser;
 		int m_maxBlockHeight;
 		int m_maxBlockWidth;
 
