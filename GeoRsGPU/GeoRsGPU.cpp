@@ -74,11 +74,11 @@ int main(int argc, char *argv[])
 		std::cout << "BlockWidth not found - using default value" << std::endl;
 	}*/
 
-	string inputFilePath = "d:\\GeoGPUTeste\\Data\\dem9112.tif";
+	string inputFilePath = "c:\\GPU\\srtmROLimita.tif";
 	//string inputFilePath = "d:\\Dropbox\\ASE\\GIS\\EUD_CP-DEMS_4500025000-AA.tif";
 	//string inputFilePath = "d:\\temp\\small_1_100_dem.tif";
-	string outputFilePath = "d:\\temp\\georsgpu_result.tif";
-	RasterCommand command = RasterCommand::Aspect;
+	string outputFilePath = "c:\\GPU\\hs.tif";
+	RasterCommand command = RasterCommand::ProfileCurvature;
 
 	int borderSize = 1;
 	int blockHeight = 3000, blockWidth = 2500;

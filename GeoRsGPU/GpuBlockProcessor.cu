@@ -150,20 +150,34 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 	const float csX = 25.0f;
 	const float csY = 25.0f;
 
-	#define KERNEL_PARAMS m_devIn, m_devOut, inH, inW, outH, outW, dR, dC, csX, csY
+#define KERNEL_PARAMS m_devIn, m_devOut, inH, inW, outH, outW, dR, dC, csX, csY
 
 	switch (m_command)
 	{
-	case RasterCommand::Slope:
-		gpuKernel<KernelSlopeZevenbergen> <<<grid, block >>> (KERNEL_PARAMS);
+	case RasterCommand::SlopeBurrough:
+		gpuKernel<KernelSlopeZevenbergen> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
+	case RasterCommand::SlopeZevenbergen:
+		gpuKernel<KernelSlopeZevenbergen> << <grid, block >> > (KERNEL_PARAMS);
 	case RasterCommand::Hillshade:
-		gpuKernel<KernelHillshade> <<<grid, block>>> (KERNEL_PARAMS);
+		gpuKernel<KernelHillshade> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
 	case RasterCommand::Aspect:
-		gpuKernel<KernelAspect> <<<grid, block >>> (KERNEL_PARAMS);
+		gpuKernel<KernelAspect> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::TotalCurvature:
+		gpuKernel<KernelTotalCurvature> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::PlanCurvature:
+		gpuKernel<KernelPlanCurvature> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::ProfileCurvature:
+		gpuKernel<KernelProfileCurvature> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
 	default:

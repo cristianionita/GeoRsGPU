@@ -35,7 +35,7 @@ CommandLineParser::CommandLineParser(int argc, char *argv[])
 	std::cerr << "GeoRsGPU - v1.0.100" << std::endl << std::endl;
 
 	std::unordered_map<std::string, RasterCommand> map{
-		{ "slope", RasterCommand::Slope },
+		{ "slope", RasterCommand::SlopeZevenbergen},
 		{ "hillshade", RasterCommand::Hillshade } };
 	
 	args::ArgumentParser parser(getDescription());

@@ -27,9 +27,14 @@ namespace GeoRsGpu {
 
 	enum class RasterCommand
 	{
-		Slope,
+
+		SlopeZevenbergen,
+		SlopeBurrough,
 		Hillshade,
-		Aspect
+		Aspect,
+		TotalCurvature,
+		PlanCurvature,
+		ProfileCurvature
 	};
 }
 
