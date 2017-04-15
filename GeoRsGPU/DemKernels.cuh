@@ -43,6 +43,20 @@ namespace GeoRsGpu {
 		}
 	};
 
+	struct KernelSlopeBurruogh {
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+
+			float dZdY = ((g + 2 * h + i) - (a + 2 * b + c)) / (8 * cellSizeY);
+			float dZdX = ((c + 2 * f + i) - (a + 2 * d + g)) / (8 * cellSizeX);
+			return atan(sqrt(pow(dZdX, 2) + pow(dZdY, 2))) * RadDegree;
+		}
+	};
+
 	struct KernelHillshade
 	{
 		__device__ float operator()(
@@ -75,7 +89,7 @@ namespace GeoRsGpu {
 			float zenithRad = 45 * 3.1438571429 / 180.0;
 			float slope = atan(sqrt(pow(dZdX, 2) + pow(dZdY, 2)));
 			float azimutRad = azimuthMath * 3.1438571429 / 180.0;
-			
+
 			return 255.0 * ((cos(zenithRad) * cos(slope)) +
 				(sin(zenithRad) * sin(slope) * cos(azimutRad - aspect)));
 		}
@@ -107,6 +121,70 @@ namespace GeoRsGpu {
 				aspect = 90.0 - aspect;
 
 			return aspect;
+		}
+	};
+
+	struct KernelTotalCurvature {
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+
+			float A = ((a + c + g + i) / 4 - (b + d + f + h) / 2 + e) / pow(cellSizeX, 4);
+			float B = ((a + c - g - i) / 4 - (b - h) / 2) / pow(cellSizeX, 3);
+			float C = ((-a + c - g + i) / 4 + (d - f) / 2) / pow(cellSizeX, 3);
+			float D = ((d + f) / 2 - e) / pow(cellSizeX, 2);
+			float E = ((b + h) / 2 - e) / pow(cellSizeX, 2);
+			float F = (-a + c + g - i) / 4 * pow(cellSizeX, 2);
+			float G = (-d + f) / 2 * cellSizeX;
+			float H = (b - h) / 2 * cellSizeX;
+			float I = e;
+			return -2 * (D + E) * 100;
+		}
+	};
+
+	struct KernelProfileCurvature {
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+
+			float A = ((a + c + g + i) / 4 - (b + d + f + h) / 2 + e) / pow(cellSizeX, 4);
+			float B = ((a + c - g - i) / 4 - (b - h) / 2) / pow(cellSizeX, 3);
+			float C = ((-a + c - g + i) / 4 + (d - f) / 2) / pow(cellSizeX, 3);
+			float D = ((d + f) / 2 - e) / pow(cellSizeX, 2);
+			float E = ((b + h) / 2 - e) / pow(cellSizeX, 2);
+			float F = (-a + c + g - i) / 4 * pow(cellSizeX, 2);
+			float G = (-d + f) / 2 * cellSizeX;
+			float H = (b - h) / 2 * cellSizeX;
+			float I = e;
+			return -2 * (D*pow(G, 2) + E * pow(H, 2) + F*G*H) / (pow(G, 2) + pow(H, 2));
+		}
+	};
+
+	struct KernelPlanCurvature {
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+
+			float A = ((a + c + g + i) / 4 - (b + d + f + h) / 2 + e) / pow(cellSizeX, 4);
+			float B = ((a + c - g - i) / 4 - (b - h) / 2) / pow(cellSizeX, 3);
+			float C = ((-a + c - g + i) / 4 + (d - f) / 2) / pow(cellSizeX, 3);
+			float D = ((d + f) / 2 - e) / pow(cellSizeX, 2);
+			float E = ((b + h) / 2 - e) / pow(cellSizeX, 2);
+			float F = (-a + c + g - i) / 4 * pow(cellSizeX, 2);
+			float G = (-d + f) / 2 * cellSizeX;
+			float H = (b - h) / 2 * cellSizeX;
+			float I = e;
+
+			return 2 * (D * pow(H, 2) + E * pow(G, 2) - F * G * H) / (pow(G, 2) + pow(H, 2));
 		}
 	};
 }

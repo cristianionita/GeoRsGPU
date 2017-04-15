@@ -154,16 +154,30 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 
 	switch (m_command)
 	{
-	case RasterCommand::Slope:
-		gpuKernel<KernelSlopeZevenbergen> <<<grid, block >>> (KERNEL_PARAMS);
+	case RasterCommand::SlopeBurrough:
+		gpuKernel<KernelSlopeZevenbergen> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
+	case RasterCommand::SlopeZevenbergen:
+		gpuKernel<KernelSlopeZevenbergen> << <grid, block >> > (KERNEL_PARAMS);
 	case RasterCommand::Hillshade:
-		gpuKernel<KernelHillshade> <<<grid, block>>> (KERNEL_PARAMS);
+		gpuKernel<KernelHillshade> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
 	case RasterCommand::Aspect:
-		gpuKernel<KernelAspect> <<<grid, block >>> (KERNEL_PARAMS);
+		gpuKernel<KernelAspect> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::TotalCurvature:
+		gpuKernel<KernelTotalCurvature> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::PlanCurvature:
+		gpuKernel<KernelPlanCurvature> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::ProfileCurvature:
+		gpuKernel<KernelProfileCurvature> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
 	default:
