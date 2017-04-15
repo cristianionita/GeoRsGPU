@@ -207,7 +207,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="InputFileManager.h" />
     <ClInclude Include="OutputFileManager.h" />
     <ClInclude Include="RasterCommand.h" />
-    <ClInclude Include="RasterKernels.cuh" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="GpuBlockProcessor.cu" />
