@@ -35,8 +35,14 @@ CommandLineParser::CommandLineParser(int argc, char *argv[])
 	std::cerr << "GeoRsGPU - v1.0.100" << std::endl << std::endl;
 
 	std::unordered_map<std::string, RasterCommand> map{
-		{ "slope", RasterCommand::SlopeZevenbergen},
-		{ "hillshade", RasterCommand::Hillshade } };
+		{ "slope", RasterCommand::Slope},
+		{ "hillshade", RasterCommand::Hillshade },
+		{ "aspect", RasterCommand::Aspect },
+		{ "totalCurvature", RasterCommand::TotalCurvature },
+		{ "planCurvature", RasterCommand::PlanCurvature },
+		{ "profileCurvature", RasterCommand::ProfileCurvature }	
+	};
+
 	
 	args::ArgumentParser parser(getDescription());
 	parser.Prog("GeoRsGPU.exe");
@@ -158,7 +164,7 @@ std::string CommandLineParser::getDescription()
 		"\n"
 		"\n"
 		"slope:\n"
-		"   Documentation for slope.\n"
+		"   Documentation for slope. Parameter: 'Alg' with possible values 'Brr' - Burruogh (default) or 'Zvn' - Zevenbergen\n"
 		"\n"
 		"hillshade:\n"
 		"   Documentation for hillshade.\n"

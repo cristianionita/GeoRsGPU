@@ -152,16 +152,39 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 	int dR = rectIn.getRowStart() - rectOut.getRowStart();
 	int dC = rectIn.getColStart() - rectOut.getColStart();
 
-	#define KERNEL_PARAMS m_devIn, m_devOut, inH, inW, outH, outW, dR, dC, m_cellSizeX, m_cellSizeY
+#define KERNEL_PARAMS m_devIn, m_devOut, inH, inW, outH, outW, dR, dC, m_cellSizeX, m_cellSizeY
 
 	switch (m_command)
 	{
-	case RasterCommand::SlopeBurrough:
-		gpuKernel<KernelSlopeZevenbergen> << <grid, block >> > (KERNEL_PARAMS);
-		break;
+	case RasterCommand::Slope:
+	{
+		bool useBurruogh = true; // use Burruogh by default
+		if (m_commandLineParser.parameterExists("Alg"))
+		{
+			if (m_commandLineParser.getStringParameter("Alg") == "Zvn")
+			{
+				useBurruogh = false;
+			}
+			else if (m_commandLineParser.getStringParameter("Alg") == "Brr")
+			{
+				useBurruogh = true;
+			}
+			else
+			{
+				throw std::runtime_error("Invalid slope algorithm.");
+			}
+		}
+		if (useBurruogh)
+		{
+			gpuKernel<KernelSlopeBurruogh> << <grid, block >> > (KERNEL_PARAMS);
+		}
+		else
+		{
+			gpuKernel<KernelSlopeZevenbergen> << <grid, block >> > (KERNEL_PARAMS);
+		}
+	}
+	break;
 
-	case RasterCommand::SlopeZevenbergen:
-		gpuKernel<KernelSlopeZevenbergen> << <grid, block >> > (KERNEL_PARAMS);
 	case RasterCommand::Hillshade:
 		gpuKernel<KernelHillshade> << <grid, block >> > (KERNEL_PARAMS);
 		break;
