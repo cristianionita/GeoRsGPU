@@ -25,7 +25,9 @@
 using namespace GeoRsGpu;
 
 OutputFileManager::OutputFileManager(std::string filePath,
-	double* geoTransform, int height, int width)
+	double* geoTransform, 
+	const char* geoProjection,
+	int height, int width)
 {
 	// Delete output file if exists
 	struct stat fileStat;
@@ -42,6 +44,8 @@ OutputFileManager::OutputFileManager(std::string filePath,
 	m_poDataset = poDriver->Create(
 		filePath.c_str(), width, height, 1, GDT_Float32, NULL);
 	m_poDataset->SetGeoTransform(geoTransform);
+
+	m_poDataset->SetProjection(geoProjection);
 
 	m_poRasterBand = m_poDataset->GetRasterBand(1);
 }

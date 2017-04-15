@@ -36,7 +36,8 @@ namespace GeoRsGpu {
 	public:
 		
 		GpuBlockProcessor(RasterCommand command,
-			int maxBlockHeight, int maxBlockWidth);
+			int maxBlockHeight, int maxBlockWidth,
+			float cellSizeX, float cellSizeY);
 		~GpuBlockProcessor();
 
 		inline float* getInBlock() { return m_in; }
@@ -49,6 +50,9 @@ namespace GeoRsGpu {
 		RasterCommand m_command;
 		int m_maxBlockHeight;
 		int m_maxBlockWidth;
+
+		float m_cellSizeX;
+		float m_cellSizeY;
 
 		float* m_in;
 		float* m_out;

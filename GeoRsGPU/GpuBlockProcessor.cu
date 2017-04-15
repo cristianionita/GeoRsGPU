@@ -30,11 +30,15 @@ using namespace GeoRsGpu;
 const int MAX_ERROR_MESSAGE_LEN = 300;
 
 GpuBlockProcessor::GpuBlockProcessor(RasterCommand command,
-	int maxBlockHeight, int maxBlockWidth)
+	int maxBlockHeight, int maxBlockWidth,
+	float cellSizeX, float cellSizeY)
 {
 	m_command = command;
 	m_maxBlockHeight = maxBlockHeight;
 	m_maxBlockWidth = maxBlockWidth;
+
+	m_cellSizeX = cellSizeX;
+	m_cellSizeY = cellSizeY;
 
 	/*** Init CUDA ***/
 	// Choose which GPU to run on, change this on a multi-GPU system.
@@ -146,11 +150,7 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 	int dR = rectIn.getRowStart() - rectOut.getRowStart();
 	int dC = rectIn.getColStart() - rectOut.getColStart();
 
-	// cell sizes
-	const float csX = 25.0f;
-	const float csY = 25.0f;
-
-	#define KERNEL_PARAMS m_devIn, m_devOut, inH, inW, outH, outW, dR, dC, csX, csY
+	#define KERNEL_PARAMS m_devIn, m_devOut, inH, inW, outH, outW, dR, dC, m_cellSizeX, m_cellSizeY
 
 	switch (m_command)
 	{

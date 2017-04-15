@@ -34,7 +34,9 @@ namespace GeoRsGpu {
 	class OutputFileManager {
 	public:
 		OutputFileManager(std::string filePath, 
-			double* geoTransform, int height, int width);
+			double* geoTransform, 
+			const char* projection,
+			int height, int width);
 		~OutputFileManager();
 
 		void writeBlock(BlockRect rect, float* block);

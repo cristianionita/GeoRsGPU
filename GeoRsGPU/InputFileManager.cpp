@@ -51,7 +51,7 @@ InputFileManager::InputFileManager(std::string filePath)
 	// 4 -> 0
 	// 5 -> n-s pixel resolution (negative value)	
 	m_poDataset->GetGeoTransform(m_geoTransform);
-
+	
 	// We assume that the file has only one raster band
 	// (we always use the first one).
 	m_poRasterBand = m_poDataset->GetRasterBand(1);

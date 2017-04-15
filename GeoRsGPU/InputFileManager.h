@@ -40,6 +40,19 @@ namespace GeoRsGpu {
 		inline int getWidth() const { return m_poRasterBand->GetXSize(); }
 		inline double* getGeoTransform() const { return (double*)m_geoTransform; }
 
+		// In the particular, but common, case of a "north up" image without any rotation or shearing, 
+		// the georeferencing transform takes the following form :
+		// 0 -> top left x
+		// 1 -> w-e pixel resolution
+		// 2 -> 0
+		// 3 -> top left y
+		// 4 -> 0
+		// 5 -> n-s pixel resolution (negative value)	
+		inline float getCellSizeX() { return (float)m_geoTransform[1]; }
+		inline float getCellSizeY() { return (float)-m_geoTransform[5]; }
+
+		inline const char* getProjection() { return m_poDataset->GetProjectionRef(); }
+
 		void readBlock(const BlockRect rect, float * const __restrict block);
 
 	private:
