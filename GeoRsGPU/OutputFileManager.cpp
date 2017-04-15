@@ -39,10 +39,17 @@ OutputFileManager::OutputFileManager(std::string filePath,
 		}
 	}
 
-	// Open file using GDAL
+	// Create file using GDAL
 	GDALDriver* poDriver = GetGDALDriverManager()->GetDriverByName("GTiff");
+
+	// see http://www.gdal.org/frmt_gtiff.html for available options
+	char **papszOptions = CSLAddNameValue(NULL, "COMPRESS", "PACKBITS");
+	papszOptions = CSLAddNameValue(papszOptions, "BIGTIFF", "YES");
+	papszOptions = CSLAddNameValue(papszOptions, "TILED", "YES");
+	papszOptions = CSLAddNameValue(papszOptions, "NUM_THREADS", "ALL_CPUS");
+	
 	m_poDataset = poDriver->Create(
-		filePath.c_str(), width, height, 1, GDT_Float32, NULL);
+		filePath.c_str(), width, height, 1, GDT_Float32, papszOptions);
 	m_poDataset->SetGeoTransform(geoTransform);
 
 	m_poDataset->SetProjection(geoProjection);

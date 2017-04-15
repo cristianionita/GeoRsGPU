@@ -42,6 +42,10 @@ namespace GeoRsGpu {
 		void writeBlock(BlockRect rect, float* block);
 
 	private:
+
+		OutputFileManager(OutputFileManager const&);
+		OutputFileManager& operator=(OutputFileManager const&);
+
 		GDALDataset* m_poDataset;
 		GDALRasterBand* m_poRasterBand;
 	};

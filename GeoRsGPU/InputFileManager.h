@@ -56,6 +56,10 @@ namespace GeoRsGpu {
 		void readBlock(const BlockRect rect, float * const __restrict block);
 
 	private:
+
+		InputFileManager(InputFileManager const&);
+		InputFileManager& operator=(InputFileManager const&);
+
 		GDALDataset* m_poDataset;
 		GDALDriver* m_poDriver;
 		double m_geoTransform[6];

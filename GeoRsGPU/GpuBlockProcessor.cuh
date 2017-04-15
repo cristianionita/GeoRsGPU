@@ -46,7 +46,12 @@ namespace GeoRsGpu {
 
 		void processBlock(BlockRect rectIn, BlockRect rectOut);
 
+		static void startCuda();
+		static void stopCuda();
+
 	private:
+		GpuBlockProcessor(GpuBlockProcessor const&);
+		GpuBlockProcessor& operator=(GpuBlockProcessor const&);
 
 		RasterCommand m_command;
 		CommandLineParser& m_commandLineParser;
@@ -61,8 +66,8 @@ namespace GeoRsGpu {
 		float* m_devIn;
 		float* m_devOut;
 
-		void executeCuda(std::function<cudaError_t()> cudaFunc);
-		void checkCuda();
+		static void executeCuda(std::function<cudaError_t()> cudaFunc);
+		static void checkCuda();
 	};
 
 };

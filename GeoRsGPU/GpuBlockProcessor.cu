@@ -42,14 +42,6 @@ GpuBlockProcessor::GpuBlockProcessor(
 	m_cellSizeX = cellSizeX;
 	m_cellSizeY = cellSizeY;
 
-	/*** Init CUDA ***/
-	// Choose which GPU to run on, change this on a multi-GPU system.
-	executeCuda([]() { return cudaSetDevice(0); });
-	checkCuda();
-
-	executeCuda([]() { return cudaDeviceSetCacheConfig(cudaFuncCachePreferL1); });
-	checkCuda();
-
 	/*** Allocate host and device memory for two blocks (in / out) ***/
 	executeCuda([&]() { return cudaMallocHost((void**)&m_in,
 		maxBlockHeight * maxBlockWidth * sizeof(float)); });
@@ -75,10 +67,6 @@ GpuBlockProcessor::~GpuBlockProcessor()
 	executeCuda([&]() { return cudaFree((void**)m_devIn); });
 	executeCuda([&]() { return cudaFree((void**)m_devOut); });
 	executeCuda([&]() { return cudaDeviceSynchronize(); });
-
-	// cudaDeviceReset must be called before exiting in order for profiling and
-	// tracing tools such as Nsight and Visual Profiler to show complete traces.
-	executeCuda([]() { return cudaDeviceReset(); });
 }
 
 template <typename EQ>
@@ -205,10 +193,6 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 		gpuKernel<KernelProfileCurvature> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
-	case RasterCommand::TopographicPositionIndex:
-		gpuKernel<KernelTPI> << <grid, block >> > (KERNEL_PARAMS);
-		break;
-
 	default:
 		char buffer[MAX_ERROR_MESSAGE_LEN];
 		snprintf(buffer, sizeof(buffer),
@@ -245,4 +229,22 @@ void GpuBlockProcessor::checkCuda()
 			"CUDA #%d - %s", code, cudaGetErrorString(code));
 		throw std::runtime_error(buffer);
 	}
+}
+
+void GpuBlockProcessor::startCuda()
+{
+	/*** Init CUDA ***/
+	// Choose which GPU to run on, change this on a multi-GPU system.
+	executeCuda([]() { return cudaSetDevice(0); });
+	checkCuda();
+
+	executeCuda([]() { return cudaDeviceSetCacheConfig(cudaFuncCachePreferL1); });
+	checkCuda();
+}
+
+void GpuBlockProcessor::stopCuda()
+{
+	// cudaDeviceReset must be called before exiting in order for profiling and
+	// tracing tools such as Nsight and Visual Profiler to show complete traces.
+	executeCuda([]() { return cudaDeviceReset(); });
 }
