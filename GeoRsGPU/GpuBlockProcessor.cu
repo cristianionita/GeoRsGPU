@@ -205,6 +205,10 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 		gpuKernel<KernelProfileCurvature> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
+	case RasterCommand::TopographicPositionIndex:
+		gpuKernel<KernelTPI> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
 	default:
 		char buffer[MAX_ERROR_MESSAGE_LEN];
 		snprintf(buffer, sizeof(buffer),
