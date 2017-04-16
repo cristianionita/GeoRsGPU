@@ -32,7 +32,8 @@ namespace GeoRsGpu {
 		Aspect,
 		TotalCurvature,
 		PlanCurvature,
-		ProfileCurvature
+		ProfileCurvature,
+		TopographicPositionIndex
 	};
 }
 

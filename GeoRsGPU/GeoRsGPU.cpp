@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
 	RasterCommand command = parser.getCommand();
 
 	int borderSize = 1;
-	int blockHeight = 512, blockWidth = 512;
+	int blockHeight = 4096, blockWidth = 4096;
 
 	if (parser.isIntParameterValid("BlockWidth", 1))
 	{

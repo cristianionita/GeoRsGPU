@@ -23,7 +23,7 @@
 #ifndef DEM_KERNELS_H
 #define DEM_KERNELS_H
 
-#include "cuda_runtime.h"
+#include "cuda_runtime.h";
 
 namespace GeoRsGpu {
 
@@ -185,6 +185,51 @@ namespace GeoRsGpu {
 			float I = e;
 
 			return 2 * (D * pow(H, 2) + E * pow(G, 2) - F * G * H) / (pow(G, 2) + pow(H, 2));
+		}
+	};
+
+	struct KernelTPI_EP
+	{
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+			float window[9] = { a, b, c, d, e, f, g , h, i };
+			float counter = 0;
+			for(int m = 0; m < 9; m++)
+			{
+				e < window[m] ? counter++ : counter;
+			}
+			return counter * 100 / 8.0f;
+		}
+	};
+
+	struct KernelTPI_DIF
+	{
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+			float meanWindow = (a + b + c + d + e + f + g + h + i) / 9.0f;
+			float stdevWindow = sqrt((pow(a - meanWindow, 2) + pow(b - meanWindow, 2) + pow(c - meanWindow, 2) + pow(d - meanWindow, 2) + pow(e - meanWindow, 2) + pow(f - meanWindow, 2) + pow(g - meanWindow, 2) + pow(h - meanWindow, 2) + pow(i - meanWindow, 2)) / 9.0f);
+			return (e - meanWindow);
+		}
+	};
+	struct KernelTPI_DEV
+	{
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+			float meanWindow = (a + b + c + d + e + f + g + h + i) / 9.0f;
+			float stdevWindow = sqrt((pow(a - meanWindow, 2) + pow(b - meanWindow, 2) + pow(c - meanWindow, 2) + pow(d - meanWindow, 2) + pow(e - meanWindow, 2) + pow(f - meanWindow, 2) + pow(g - meanWindow, 2) + pow(h - meanWindow, 2) + pow(i - meanWindow, 2)) / 9.0f);
+			return (e - meanWindow) / stdevWindow;
 		}
 	};
 }
