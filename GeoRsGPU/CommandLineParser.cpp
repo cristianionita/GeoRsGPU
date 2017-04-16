@@ -40,7 +40,8 @@ CommandLineParser::CommandLineParser(int argc, char *argv[])
 		{ "aspect", RasterCommand::Aspect },
 		{ "totalCurvature", RasterCommand::TotalCurvature },
 		{ "planCurvature", RasterCommand::PlanCurvature },
-		{ "profileCurvature", RasterCommand::ProfileCurvature }	
+		{ "profileCurvature", RasterCommand::ProfileCurvature },
+		{ "tpi", RasterCommand::TopographicPositionIndex }
 	};
 
 	

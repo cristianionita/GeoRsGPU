@@ -206,8 +206,43 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 		break;
 
 	case RasterCommand::TopographicPositionIndex:
-		gpuKernel<KernelTPI> << <grid, block >> > (KERNEL_PARAMS);
-		break;
+	{
+		bool useEP = true;
+		bool useDIF = false;
+		bool useDEV = false;
+		if (m_commandLineParser.parameterExists("Alg"))
+		{
+			if (m_commandLineParser.getStringParameter("Alg") == "EP")
+			{
+				useEP = true;
+			}
+			else if (m_commandLineParser.getStringParameter("Alg") == "DIF")
+			{
+				useDIF = true;
+			}
+			else if (m_commandLineParser.getStringParameter("Alg") == "DEV")
+			{
+				useDEV = true;
+			}
+			else
+			{
+				throw std::runtime_error("Invalid topographic postion index");
+			}
+		}
+		if (useEP)
+		{
+			gpuKernel<KernelTPI_EP> << <grid, block >> > (KERNEL_PARAMS);
+		}
+		else if (useDIF)
+		{
+			gpuKernel<KernelTPI_DIF> << <grid, block >> > (KERNEL_PARAMS);
+		}
+		else if (useDEV)
+		{
+			gpuKernel<KernelTPI_DEV> << <grid, block >> > (KERNEL_PARAMS);
+		}
+	}
+	break;
 
 	default:
 		char buffer[MAX_ERROR_MESSAGE_LEN];
