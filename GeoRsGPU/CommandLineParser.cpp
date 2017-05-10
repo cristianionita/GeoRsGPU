@@ -41,10 +41,20 @@ CommandLineParser::CommandLineParser(int argc, char *argv[])
 		{ "totalCurvature", RasterCommand::TotalCurvature },
 		{ "planCurvature", RasterCommand::PlanCurvature },
 		{ "profileCurvature", RasterCommand::ProfileCurvature },
-		{ "tpi", RasterCommand::TopographicPositionIndex }
+		{ "tpi", RasterCommand::TopographicPositionIndex},
+		{ "majority", RasterCommand::Majority},
+		{ "minority", RasterCommand::Minority},
+		{ "max", RasterCommand::Maximum },
+		{ "min", RasterCommand::Minimum },
+		{ "median", RasterCommand::Median},
+		{ "mean", RasterCommand::Mean},
+		{ "stdev", RasterCommand::StandardDeviation},
+		{ "range", RasterCommand::Range},
+		{ "sum", RasterCommand::Sum},
+		{ "variety", RasterCommand::Variety }
 	};
 
-	
+
 	args::ArgumentParser parser(getDescription());
 	parser.Prog("GeoRsGPU.exe");
 
@@ -68,7 +78,7 @@ CommandLineParser::CommandLineParser(int argc, char *argv[])
 	try
 	{
 		parser.ParseCLI(argc, argv);
-		
+
 		m_inputFileName = posInputFile.Get();
 		m_outputFileName = posOutputFile.Get();
 

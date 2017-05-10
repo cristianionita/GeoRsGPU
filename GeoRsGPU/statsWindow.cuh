@@ -20,31 +20,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef GEORSGPU_RASTER_COMMAND_H
-#define GEORSGPU_RASTER_COMMAND_H
+#ifndef STATSWINDOW_H
+#define STATSWINDOW_H
+
+#include "cuda_runtime.h";
 
 namespace GeoRsGpu {
 
-	enum class RasterCommand
-	{
-		Slope,
-		Hillshade,
-		Aspect,
-		TotalCurvature,
-		PlanCurvature,
-		ProfileCurvature,
-		TopographicPositionIndex,
-		Majority,
-		Minority,
-		Maximum,
-		Minimum,
-		Median,
-		Mean,
-		StandardDeviation,
-		Range,
-		Sum,
-		Variety
-	};
-}
+	__device__ const float RadDegree = 57.29578f;
 
-#endif // !GEORSGPU_RASTER_COMMAND_H
+	//struct meanWindow {
+	//	__device__ float operator()(
+	//		const float a, const float b, const float c,
+	//		const float d, const float e, const float f,
+	//		const float g, const float h, const float i,
+	//		const float cellSizeX, const float cellSizeY)
+	//	{
+	//		float mean = 0;
+	//		return mean;
+	//	}
+	//};
+
+	//struct stdevWindow {
+	//	__device__ float operator()(
+	//		const float a, const float b, const float c,
+	//		const float d, const float e, const float f,
+	//		const float g, const float h, const float i,
+	//		const float cellSizeX, const float cellSizeY)
+	//	{
+	//		float stdev = 0;
+	//		return stdev;
+	//	}
+	//};
+}
+#endif // !STATSWINDOW_H

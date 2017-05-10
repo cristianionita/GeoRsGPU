@@ -23,7 +23,7 @@
 #ifndef DEM_KERNELS_H
 #define DEM_KERNELS_H
 
-#include "cuda_runtime.h";
+#include "cuda_runtime.h"
 
 namespace GeoRsGpu {
 
@@ -188,7 +188,7 @@ namespace GeoRsGpu {
 		}
 	};
 
-	struct KernelTPI_EP
+	struct KernelTopographicPositionIndex_EP
 	{
 		__device__ float operator()(
 			const float a, const float b, const float c,
@@ -198,7 +198,7 @@ namespace GeoRsGpu {
 		{
 			float window[9] = { a, b, c, d, e, f, g , h, i };
 			float counter = 0;
-			for(int m = 0; m < 9; m++)
+			for (int m = 0; m < 9; m++)
 			{
 				e < window[m] ? counter++ : counter;
 			}
@@ -206,7 +206,7 @@ namespace GeoRsGpu {
 		}
 	};
 
-	struct KernelTPI_DIF
+	struct KernelTopographicPositionIndex_DIF
 	{
 		__device__ float operator()(
 			const float a, const float b, const float c,
@@ -219,7 +219,8 @@ namespace GeoRsGpu {
 			return (e - meanWindow);
 		}
 	};
-	struct KernelTPI_DEV
+
+	struct KernelTopographicPositionIndex_DEV
 	{
 		__device__ float operator()(
 			const float a, const float b, const float c,

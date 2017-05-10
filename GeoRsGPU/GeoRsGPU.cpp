@@ -51,7 +51,7 @@ void showFileDetails(InputFileManager& in, BlockManager& bm)
 		<< ", Y=" << in.getCellSizeY()
 		<< endl;
 
-	cout << "Projection: " << in.getProjection() << endl;
+	//cout << "Projection: " << in.getProjection() << endl;
 
 	cout << "Block size: " << bm.getBlockHeight() << " rows X " << bm.getBlockWidth() << " cols"
 		<< " (" << bm.getHeightInBlocks() << " x " << bm.getWidthInBlocks()

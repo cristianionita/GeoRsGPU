@@ -24,6 +24,7 @@
 
 #include "GpuBlockProcessor.cuh"
 #include "DemKernels.cuh"
+#include "LocalStatisticsKernels.cuh"
 
 using namespace GeoRsGpu;
 
@@ -71,6 +72,55 @@ GpuBlockProcessor::~GpuBlockProcessor()
 
 template <typename EQ>
 __global__ void gpuKernel(
+	const float * const __restrict input, float * const __restrict output,
+	const int height, const int width,
+	const int heightOut, const int widthOut,
+	const int deltaRow, const int deltaCol,
+	const float cellSizeX, const float cellSizeY)
+{
+	int rowIndex = blockIdx.y * blockDim.y + threadIdx.y;
+	int colIndex = blockIdx.x * blockDim.x + threadIdx.x;
+
+	int colIndexOut = colIndex + deltaCol;
+	int rowIndexOut = rowIndex + deltaRow;
+
+	if (colIndexOut < 0 || colIndexOut >= widthOut
+		|| rowIndexOut < 0 || rowIndexOut >= heightOut)
+	{
+		// We don't have any output value
+		return;
+	}
+
+	float& outputElem = output[rowIndexOut * widthOut + colIndexOut];
+
+	if (colIndex > 0 && colIndex < width - 1
+		&& rowIndex > 0 && rowIndex < height - 1)
+	{
+		// We have everything we need
+		float a = input[width * (rowIndex - 1) + colIndex - 1];
+		float b = input[width * (rowIndex - 1) + colIndex];
+		float c = input[width * (rowIndex - 1) + colIndex + 1];
+
+		float d = input[width * rowIndex + colIndex - 1];
+		float e = input[width * rowIndex + colIndex];
+		float f = input[width * rowIndex + colIndex + 1];
+
+		float g = input[width * (rowIndex + 1) + colIndex - 1];
+		float h = input[width * (rowIndex + 1) + colIndex];
+		float i = input[width * (rowIndex + 1) + colIndex + 1];
+
+		outputElem = EQ()(a, b, c, d, e, f, g, h, i, cellSizeX, cellSizeY);
+	}
+	else if (
+		colIndex == 0 || rowIndex == 0 ||
+		colIndex == width - 1 || rowIndex == height - 1)
+	{
+		// We are on the edge - we don't have all surrounding values
+		outputElem = 0;
+	}
+}
+template <typename EQ>
+__global__ void gpuKernel_NXM(
 	const float * const __restrict input, float * const __restrict output,
 	const int height, const int width,
 	const int heightOut, const int widthOut,
@@ -219,18 +269,55 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 		}
 		if (useEP)
 		{
-			gpuKernel<KernelTPI_EP> << <grid, block >> > (KERNEL_PARAMS);
+			gpuKernel<KernelTopographicPositionIndex_EP> << <grid, block >> > (KERNEL_PARAMS);
 		}
 		else if (useDIF)
 		{
-			gpuKernel<KernelTPI_DIF> << <grid, block >> > (KERNEL_PARAMS);
+			gpuKernel<KernelTopographicPositionIndex_DIF> << <grid, block >> > (KERNEL_PARAMS);
 		}
 		else if (useDEV)
 		{
-			gpuKernel<KernelTPI_DEV> << <grid, block >> > (KERNEL_PARAMS);
+			gpuKernel<KernelTopographicPositionIndex_DEV> << <grid, block >> > (KERNEL_PARAMS);
 		}
 	}
 	break;
+
+
+	case RasterCommand::Minority:
+		gpuKernel<KernelMinority> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Majority:
+		gpuKernel<KernelMajority> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Mean:
+		gpuKernel<KernelMean> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Median:
+		gpuKernel<KernelMedian> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Maximum:
+		gpuKernel<KernelMaximum> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Minimum:
+		gpuKernel<KernelMinimum> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::StandardDeviation:
+		gpuKernel<KernelStandardDeviation> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Range:
+		gpuKernel<KernelRange> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Variety:
+		gpuKernel<KernelVariety> << <grid, block >> > (KERNEL_PARAMS);
+		break;
 
 	default:
 		char buffer[MAX_ERROR_MESSAGE_LEN];
