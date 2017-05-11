@@ -43,7 +43,10 @@ namespace GeoRsGpu {
 		StandardDeviation,
 		Range,
 		Sum,
-		Variety
+		Variety,
+		Percentile,
+		DiffFromMean,
+		StDevFromMean
 	};
 }
 

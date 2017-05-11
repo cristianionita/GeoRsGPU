@@ -51,7 +51,10 @@ CommandLineParser::CommandLineParser(int argc, char *argv[])
 		{ "stdev", RasterCommand::StandardDeviation},
 		{ "range", RasterCommand::Range},
 		{ "sum", RasterCommand::Sum},
-		{ "variety", RasterCommand::Variety }
+		{ "variety", RasterCommand::Variety },
+		{ "percentile", RasterCommand::Percentile },
+		{ "diffmean", RasterCommand::DiffFromMean},
+		{ "devmean", RasterCommand::StDevFromMean}
 	};
 
 

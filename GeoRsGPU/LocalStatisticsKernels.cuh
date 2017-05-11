@@ -338,5 +338,58 @@ namespace GeoRsGpu {
 			return counter;
 		}
 	};
+
+	//PERCENTILE
+	struct KernelPercentile
+	{
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+			float window[9] = { a, b, c, d, e, f, g , h, i };
+			int count = 0;
+			for (int m = 0; m < 9; m++)
+			{
+				if (window[m] < e)
+				{
+					count++;
+				}
+			}
+			return count * 100.0f / 8.0f;
+		}
+	};
+
+	//DIFFERENCE FROM MEAN
+	struct KernelDiffFromMean
+	{
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+			//float window[9] = { a, b, c, d, e, f, g , h, i };
+			float meanWindow = (a + b + c + d + e + f + g + h + i) / 9.0f;
+			return (e - meanWindow);
+		}
+	};
+
+	//DEVIATION FROM MEAN
+	struct KernelDevFromMean
+	{
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY)
+		{
+			float window[9] = { a, b, c, d, e, f, g , h, i };
+			float meanWindow = (a + b + c + d + e + f + g + h + i) / 9.0f;
+			float stdevWindow = sqrt((pow(a - meanWindow, 2) + pow(b - meanWindow, 2) + pow(c - meanWindow, 2) + pow(d - meanWindow, 2) + pow(e - meanWindow, 2) + pow(f - meanWindow, 2) + pow(g - meanWindow, 2) + pow(h - meanWindow, 2) + pow(i - meanWindow, 2)) / 9.0f);
+			return (e - meanWindow) / stdevWindow;
+		}
+	};
 }
 #endif // !LOCAL_STATISTICS_KERNELS_H
