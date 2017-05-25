@@ -25,6 +25,8 @@
 #include "GpuBlockProcessor.cuh"
 #include "DemKernels.cuh"
 #include "LocalStatisticsKernels.cuh"
+#include "TrigonometricKernels.cuh"
+#include "MathKernels.cuh"
 
 using namespace GeoRsGpu;
 
@@ -330,6 +332,112 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 	case RasterCommand::StDevFromMean:
 		gpuKernel<KernelDevFromMean> << <grid, block >> > (KERNEL_PARAMS);
 		break;
+
+
+		//Trigonometric kernels
+	case RasterCommand::ATan:
+		gpuKernel<KernelATAN> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::ATanH:
+		gpuKernel<KernelATANH> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+		//case RasterCommand::ATan2:
+		//	gpuKernel<KernelATAN2> << <grid, block >> > (KERNEL_PARAMS);
+		//	break;
+
+	case RasterCommand::ACos:
+		gpuKernel<KernelACos> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::ACosH:
+		gpuKernel<KernelACosH> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::ASin:
+		gpuKernel<KernelASin> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::ASinH:
+		gpuKernel<KernelASinH> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Tan:
+		gpuKernel<KernelTAN> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::TanH:
+		gpuKernel<KernelTANH> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Cos:
+		gpuKernel<KernelCos> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::CosH:
+		gpuKernel<KernelCosH> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Sin:
+		gpuKernel<KernelSin> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::SinH:
+		gpuKernel<KernelSinH> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+
+		//Math functions
+	case RasterCommand::Abs:
+		gpuKernel<KernelAbs> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::RoundUp:
+		gpuKernel<KernelCeil> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::RoundDown:
+		gpuKernel<KernelFloor> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Exp10f:
+		gpuKernel<KernelExp10f> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Exp2f:
+		gpuKernel<KernelExp2f> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Lnf:
+		gpuKernel<KernelLogf> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Log10f:
+		gpuKernel<KernelLog10f> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Log2f:
+		gpuKernel<KernelLog2f> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Negate:
+		gpuKernel<KernelNegate> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Power:
+		gpuKernel<KernelPower> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::Square:
+		gpuKernel<KernelSquare> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+	case RasterCommand::SqRoot:
+		gpuKernel<KernelSquareRoot> << <grid, block >> > (KERNEL_PARAMS);
+		break;
+
+
 
 	default:
 		char buffer[MAX_ERROR_MESSAGE_LEN];

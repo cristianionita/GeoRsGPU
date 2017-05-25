@@ -27,7 +27,8 @@
 
 namespace GeoRsGpu {
 
-	__device__ const float RadDegree = 57.29578f;
+	//__device__ const float RadDegree = 57.29578f;
+	__device__ const float RadDegree = 57.295779513082320876798154814105f;
 
 	struct KernelSlopeZevenbergen
 	{

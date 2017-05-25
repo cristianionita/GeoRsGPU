@@ -41,7 +41,8 @@ CommandLineParser::CommandLineParser(int argc, char *argv[])
 		{ "totalCurvature", RasterCommand::TotalCurvature },
 		{ "planCurvature", RasterCommand::PlanCurvature },
 		{ "profileCurvature", RasterCommand::ProfileCurvature },
-		{ "tpi", RasterCommand::TopographicPositionIndex},
+		{ "tpi", RasterCommand::TopographicPositionIndex },
+		//Local statistics functions
 		{ "majority", RasterCommand::Majority},
 		{ "minority", RasterCommand::Minority},
 		{ "max", RasterCommand::Maximum },
@@ -54,7 +55,35 @@ CommandLineParser::CommandLineParser(int argc, char *argv[])
 		{ "variety", RasterCommand::Variety },
 		{ "percentile", RasterCommand::Percentile },
 		{ "diffmean", RasterCommand::DiffFromMean},
-		{ "devmean", RasterCommand::StDevFromMean}
+		{ "devmean", RasterCommand::StDevFromMean },
+		//Trigonometric functions
+		{ "atan", RasterCommand::ATan},
+		//{ "atan2", RasterCommand::ATan2 },
+		{ "atanh", RasterCommand::ATanH },
+		{ "acos", RasterCommand::ACos },
+		{ "acosh", RasterCommand::ACosH },
+		{ "asin", RasterCommand::ASin },
+		{ "asinh", RasterCommand::ASinH },
+		{ "tan", RasterCommand::Tan },
+		{ "tanh", RasterCommand::TanH },
+		{ "cos", RasterCommand::Cos },
+		{ "cosh", RasterCommand::CosH },
+		{ "sin", RasterCommand::Sin },
+		{ "sinh", RasterCommand::SinH },
+		//Math functions
+		{ "abs", RasterCommand::Abs },
+		{ "roundup", RasterCommand::RoundUp },
+		{ "rounddown", RasterCommand::RoundDown },
+		{ "expf", RasterCommand::Expf },
+		{ "exp10f", RasterCommand::Exp10f },
+		{ "exp2f", RasterCommand::Exp2f },
+		{ "lnf", RasterCommand::Lnf },
+		{ "log10f", RasterCommand::Log10f },
+		{ "log2f", RasterCommand::Log2f },
+		{ "negate", RasterCommand::Negate },
+		{ "power", RasterCommand::Power },
+		{ "square", RasterCommand::Square },
+		{ "sqroot", RasterCommand::SqRoot }
 	};
 
 
