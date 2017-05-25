@@ -1,5 +1,4 @@
 
-
 // MIT License
 // 
 // Copyright(c) 2017 Cristian Ionita, Ionut Sandric, Marian Dardala, Titus Felix Furtuna
@@ -37,7 +36,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return fabs(e);
 		}
@@ -49,7 +48,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return floorf(e);
 		}
@@ -61,7 +60,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return ceil(e);
 		}
@@ -73,7 +72,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return expf(e);
 		}
@@ -85,7 +84,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return powf(2, 10);
 		}
@@ -97,7 +96,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return exp2f(e);
 		}
@@ -109,7 +108,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return logf(e);
 		}
@@ -121,7 +120,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return log10f(e);
 		}
@@ -133,7 +132,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return log2f(e);
 		}
@@ -145,7 +144,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return e * -1;
 		}
@@ -157,9 +156,9 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
-			return pow(e, e);
+			return pow(e, a1);
 		}
 	};
 
@@ -169,7 +168,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return pow(e, 2);
 		}
@@ -181,7 +180,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return sqrt(e);
 		}

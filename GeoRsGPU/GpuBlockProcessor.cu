@@ -78,7 +78,7 @@ __global__ void gpuKernel(
 	const int height, const int width,
 	const int heightOut, const int widthOut,
 	const int deltaRow, const int deltaCol,
-	const float cellSizeX, const float cellSizeY)
+	const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 {
 	int rowIndex = blockIdx.y * blockDim.y + threadIdx.y;
 	int colIndex = blockIdx.x * blockDim.x + threadIdx.x;
@@ -111,7 +111,7 @@ __global__ void gpuKernel(
 		float h = input[width * (rowIndex + 1) + colIndex];
 		float i = input[width * (rowIndex + 1) + colIndex + 1];
 
-		outputElem = EQ()(a, b, c, d, e, f, g, h, i, cellSizeX, cellSizeY);
+		outputElem = EQ()(a, b, c, d, e, f, g, h, i, cellSizeX, cellSizeY, a1, a2, a3, a4, a5);
 	}
 	else if (
 		colIndex == 0 || rowIndex == 0 ||
@@ -127,7 +127,7 @@ __global__ void gpuKernel_NXM(
 	const int height, const int width,
 	const int heightOut, const int widthOut,
 	const int deltaRow, const int deltaCol,
-	const float cellSizeX, const float cellSizeY)
+	const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 {
 	int rowIndex = blockIdx.y * blockDim.y + threadIdx.y;
 	int colIndex = blockIdx.x * blockDim.x + threadIdx.x;
@@ -191,8 +191,13 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 	// is positioned against the input block (non zero for edge cases)
 	int dR = rectIn.getRowStart() - rectOut.getRowStart();
 	int dC = rectIn.getColStart() - rectOut.getColStart();
+	float a1 = 0;
+	float a2 = 0;
+	float a3 = 0;
+	float a4 = 0;
+	float a5 = 0;
 
-#define KERNEL_PARAMS m_devIn, m_devOut, inH, inW, outH, outW, dR, dC, m_cellSizeX, m_cellSizeY
+#define KERNEL_PARAMS m_devIn, m_devOut, inH, inW, outH, outW, dR, dC, m_cellSizeX, m_cellSizeY, a1, a2, a3, a4, a5
 
 	switch (m_command)
 	{
@@ -226,6 +231,9 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 	break;
 
 	case RasterCommand::Hillshade:
+		a1 = m_commandLineParser.getFloatParameter("SunAzimuth", 315.0f);
+		a2 = m_commandLineParser.getFloatParameter("SunElevation", 45.0f);
+
 		gpuKernel<KernelHillshade> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
@@ -426,6 +434,11 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 		break;
 
 	case RasterCommand::Power:
+
+		if (m_commandLineParser.parameterExists("P"))
+		{
+			a1 = m_commandLineParser.getFloatParameter("P");
+		}
 		gpuKernel<KernelPower> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 

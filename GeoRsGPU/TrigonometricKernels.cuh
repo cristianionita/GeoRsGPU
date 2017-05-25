@@ -36,7 +36,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return atan(e);
 		}
@@ -49,7 +49,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return atanh(e);
 		}
@@ -62,7 +62,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return acos(e);
 		}
@@ -75,7 +75,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return acosh(e);
 		}
@@ -89,7 +89,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return asin(e);
 		}
@@ -102,7 +102,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return asinh(e);
 		}
@@ -115,7 +115,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return atan(e);
 		}
@@ -128,7 +128,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return tan(e);
 		}
@@ -141,7 +141,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return tanh(e);
 		}
@@ -154,7 +154,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return cos(e);
 		}
@@ -167,7 +167,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return cosh(e);
 		}
@@ -180,7 +180,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return sin(e);
 		}
@@ -193,7 +193,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			return sinh(e);
 		}
