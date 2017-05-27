@@ -87,9 +87,86 @@ namespace GeoRsGpu {
 				aspect = 90.0 - aspect;
 
 			float azimuthMath = a1;//360.0 - 310 + 90;
-			float zenithRad = a2 * RadDegree; // 45 * 3.1438571429 / 180.0;
+			float zenithRad = a2 / RadDegree; // 45 * 3.1438571429 / 180.0;
 			float slope = atan(sqrt(pow(dZdX, 2) + pow(dZdY, 2)));
-			float azimutRad = azimuthMath * 3.1438571429 / 180.0;
+			float azimutRad = azimuthMath / RadDegree; // 3.1438571429 / 180.0;
+
+			return 255.0 * ((cos(zenithRad) * cos(slope)) +
+				(sin(zenithRad) * sin(slope) * cos(azimutRad - aspect)));
+		}
+	};
+
+
+	struct KernelHillshadeSwiss
+	{
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
+		{
+			float dZdY = ((g + 2 * h + i) - (a + 2 * b + c)) / (8 * cellSizeY);
+			float dZdX = ((c + 2 * f + i) - (a + 2 * d + g)) / (8 * cellSizeX);
+
+			float A = ((a + c + g + i) / 4 - (b + d + f + h) / 2 + e) / pow(cellSizeX, 4);
+			float B = ((a + c - g - i) / 4 - (b - h) / 2) / pow(cellSizeX, 3);
+			float C = ((-a + c - g + i) / 4 + (d - f) / 2) / pow(cellSizeX, 3);
+			float D = ((d + f) / 2 - e) / pow(cellSizeX, 2);
+			float E = ((b + h) / 2 - e) / pow(cellSizeX, 2);
+			float F = (-a + c + g - i) / 4 * pow(cellSizeX, 2);
+			float G = (-d + f) / 2 * cellSizeX;
+			float H = (b - h) / 2 * cellSizeX;
+
+			float aspect = atan2f(-H, -G);
+			if (aspect < 0)
+				aspect = 90.0 - aspect;
+			else if (aspect > 90.0)
+				aspect = 360.0 - aspect + 90.0;
+			else
+				aspect = 90.0 - aspect;
+
+			float azimuthMath = a1;//360.0 - 310 + 90;
+			float zenithRad = a2 / RadDegree; // 45 * 3.1438571429 / 180.0;
+			float slope = atan(sqrt(pow(dZdX, 2) + pow(dZdY, 2)));
+			float azimutRad = azimuthMath / RadDegree; // 3.1438571429 / 180.0;
+
+			return 255.0 * ((cos(zenithRad) * cos(slope)) +
+				(sin(zenithRad) * sin(slope) * cos(azimutRad - aspect)));
+		}
+	};
+
+	struct KernelHillshadeMDOW
+	{
+		__device__ float operator()(
+			const float a, const float b, const float c,
+			const float d, const float e, const float f,
+			const float g, const float h, const float i,
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
+		{
+			float dZdY = ((g + 2 * h + i) - (a + 2 * b + c)) / (8 * cellSizeY);
+			float dZdX = ((c + 2 * f + i) - (a + 2 * d + g)) / (8 * cellSizeX);
+
+			float A = ((a + c + g + i) / 4 - (b + d + f + h) / 2 + e) / pow(cellSizeX, 4);
+			float B = ((a + c - g - i) / 4 - (b - h) / 2) / pow(cellSizeX, 3);
+			float C = ((-a + c - g + i) / 4 + (d - f) / 2) / pow(cellSizeX, 3);
+			float D = ((d + f) / 2 - e) / pow(cellSizeX, 2);
+			float E = ((b + h) / 2 - e) / pow(cellSizeX, 2);
+			float F = (-a + c + g - i) / 4 * pow(cellSizeX, 2);
+			float G = (-d + f) / 2 * cellSizeX;
+			float H = (b - h) / 2 * cellSizeX;
+
+			float aspect = atan2f(-H, -G);
+			if (aspect < 0)
+				aspect = 90.0 - aspect;
+			else if (aspect > 90.0)
+				aspect = 360.0 - aspect + 90.0;
+			else
+				aspect = 90.0 - aspect;
+
+			float azimuthMath = a1;//360.0 - 310 + 90;
+			float zenithRad = a2 / RadDegree; // 45 * 3.1438571429 / 180.0;
+			float slope = atan(sqrt(pow(dZdX, 2) + pow(dZdY, 2)));
+			float azimutRad = azimuthMath / RadDegree; // 3.1438571429 / 180.0;
 
 			return 255.0 * ((cos(zenithRad) * cos(slope)) +
 				(sin(zenithRad) * sin(slope) * cos(azimutRad - aspect)));

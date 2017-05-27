@@ -435,10 +435,7 @@ void GpuBlockProcessor::processBlock(BlockRect rectIn, BlockRect rectOut)
 
 	case RasterCommand::Power:
 
-		if (m_commandLineParser.parameterExists("P"))
-		{
-			a1 = m_commandLineParser.getFloatParameter("P");
-		}
+		a1 = m_commandLineParser.getFloatParameter("Pow", 1);
 		gpuKernel<KernelPower> << <grid, block >> > (KERNEL_PARAMS);
 		break;
 
