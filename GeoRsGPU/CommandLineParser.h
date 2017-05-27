@@ -50,6 +50,15 @@ namespace GeoRsGpu {
 		inline int getIntParameter(std::string paramName) {
 			return std::stoi(m_parameters[paramName]);
 		}
+		inline int getFloatParameter(std::string paramName) {
+			return std::stof(m_parameters[paramName]);
+		}
+		inline int getFloatParameter(std::string paramName, float defaultValue) {
+			if (parameterExists(paramName))
+				return getFloatParameter(paramName);
+			else
+				return defaultValue;
+		}
 
 		inline bool isValid() const { return m_isValid; }
 

@@ -35,7 +35,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { a, b, c, d, e, f, g , h, i };
 			float sumWindow = 0;
@@ -53,7 +53,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float meanWindow = (a + b + c + d + e + f + g + h + i) / 9.0f;
 			float stdevWindow = sqrt((pow(a - meanWindow, 2) + pow(b - meanWindow, 2) + pow(c - meanWindow, 2) + pow(d - meanWindow, 2) + pow(e - meanWindow, 2) + pow(f - meanWindow, 2) + pow(g - meanWindow, 2) + pow(h - meanWindow, 2) + pow(i - meanWindow, 2)) / 9.0f);
@@ -67,7 +67,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { a, b, c, d, e, f, g , h, i };
 			float min = window[0];
@@ -87,7 +87,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { a, b, c, d, e, f, g, h, i };
 			float max = window[0];
@@ -105,7 +105,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { a, b, c, d, e, f, g, h, i };
 			for (int m = 0; m < 9; m++)
@@ -131,7 +131,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { a, b, c, d, e, f, g , h, i };
 			float min = window[0];
@@ -149,7 +149,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { int(a), int(b), int(c), int(d), int(e), int(f), int(g), int(h), int(i) };
 			int maxIndex = 0;
@@ -223,7 +223,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { int(a), int(b), int(c), int(d), int(e), int(f), int(g), int(h), int(i) };
 			int minIndex = 0;
@@ -297,7 +297,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { a, b, c, d, e, f, g , h, i };
 			float sum = 0;
@@ -316,7 +316,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { a, b, c, d, e, f, g , h, i };
 			int counter = 0;
@@ -346,7 +346,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { a, b, c, d, e, f, g , h, i };
 			int count = 0;
@@ -368,7 +368,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			//float window[9] = { a, b, c, d, e, f, g , h, i };
 			float meanWindow = (a + b + c + d + e + f + g + h + i) / 9.0f;
@@ -383,7 +383,7 @@ namespace GeoRsGpu {
 			const float a, const float b, const float c,
 			const float d, const float e, const float f,
 			const float g, const float h, const float i,
-			const float cellSizeX, const float cellSizeY)
+			const float cellSizeX, const float cellSizeY, const float a1, const float a2, const float a3, const float a4, const float a5)
 		{
 			float window[9] = { a, b, c, d, e, f, g , h, i };
 			float meanWindow = (a + b + c + d + e + f + g + h + i) / 9.0f;
